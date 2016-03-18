@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    tools:context="cpen391_21.stegocrypto.SelectLocation">
+
+    <LinearLayout android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Data: "
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        <EditText android:id="@+id/data_for_enc"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Enter your data here..."
+            />
+    </LinearLayout>
+
+    <LinearLayout android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pub Key: "
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        <EditText
+            android:id="@+id/pub_enc_key"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Public key of DE2"
+            />
+        <Button
+            android:id="@+id/go_browse_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="browse" />
+    </LinearLayout>
+
+    <LinearLayout android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Geo Key: "
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        <EditText android:id="@+id/geo_key"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Geolocation key"
+            />
+        <Button
+            android:id="@+id/go_select_loc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="select" />
+    </LinearLayout>
+
+    <LinearLayout android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Image: "
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="camera" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="browse" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+        <ImageView
+            android:src = "@drawable/dank_meme"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"/>
+    </FrameLayout>
+
+    <RelativeLayout android:layout_marginTop="5dp">
+        <Button
+            android:id="@+id/enc_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="encrypt" />
+
+        <Button
+            android:id="@+id/send_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="send" />
+    </RelativeLayout>
+</TableLayout>
