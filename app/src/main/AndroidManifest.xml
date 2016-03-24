@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <activity
-        android:name="StegoCrypto"
+        android:name=".StegoCrypto"
         android:label="Android App with DE2 encryption" />
 
     <!--
@@ -59,7 +59,7 @@
         <activity
             android:name=".Decryption"
             android:label="Decrypt Data" />
-        <activity android:name=".DecryptResult"></activity>
+        <activity android:name=".RegisterActivity"></activity>
     </application>
 
 </manifest>

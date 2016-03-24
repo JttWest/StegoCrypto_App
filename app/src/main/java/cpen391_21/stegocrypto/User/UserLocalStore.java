@@ -1,0 +1,49 @@
+package cpen391_21.stegocrypto.User;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+
+public class UserLocalStore {
+
+    public static final String SP_NAME = "userDetails";
+
+    SharedPreferences userLocalDatabase;
+
+    public UserLocalStore(Context context) {
+        userLocalDatabase = context.getSharedPreferences(SP_NAME, 0);
+    }
+
+    public void storeUserData(User user) {
+        SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
+        userLocalDatabaseEditor.putString("username", user.getUserName());
+        userLocalDatabaseEditor.putString("password", user.getPassword());
+        userLocalDatabaseEditor.commit();
+    }
+
+    public void setUserLoggedIn(boolean loggedIn) {
+        SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
+        userLocalDatabaseEditor.putBoolean("loggedIn", loggedIn);
+        userLocalDatabaseEditor.commit();
+    }
+
+    public void clearUserData() {
+        SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
+        userLocalDatabaseEditor.clear();
+        userLocalDatabaseEditor.commit();
+    }
+
+    // returns current login user in local DB
+    public User getLoggedInUser() {
+        if (!userLocalDatabase.getBoolean("loggedIn", false)) {
+            return null;
+        }
+
+        String userName = userLocalDatabase.getString("userName", "");
+        String password = userLocalDatabase.getString("password", "");
+        String instanceIDToken = userLocalDatabase.getString("instanceIDToken", "");
+
+        User user = new User(userName, password, instanceIDToken);
+        return user;
+    }
+}

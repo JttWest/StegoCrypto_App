@@ -9,11 +9,28 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="cpen391_21.stegocrypto.MainMenuActivity">
+    
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:src="@mipmap/stegography_logo"/>
 
     <Button android:id="@+id/goToLogin"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Log In"
+        android:text="Login"
+        android:layout_marginTop="15dip"/>
+
+    <Button android:id="@+id/goToRegister"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:layout_marginTop="15dip"/>
+
+    <Button android:id="@+id/logoutBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"
         android:layout_marginTop="15dip"/>
 
     <Button android:id="@+id/goToSendData"

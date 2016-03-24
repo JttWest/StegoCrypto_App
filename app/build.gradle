@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "cpen391_21.stegocrypto"
-        minSdkVersion 19
+        minSdkVersion 17
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -25,4 +25,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'
     compile 'com.google.android.gms:play-services:8.4.0'
+    compile 'com.android.volley:volley:1.0.0'
+    compile "com.google.android.gms:play-services-gcm:8.4.0"
 }
+
+apply plugin: 'com.google.gms.google-services'

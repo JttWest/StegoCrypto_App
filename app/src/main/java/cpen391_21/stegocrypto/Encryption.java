@@ -1,6 +1,7 @@
 package cpen391_21.stegocrypto;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,12 +10,19 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 public class Encryption extends AppCompatActivity {
 
@@ -44,39 +52,39 @@ public class Encryption extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
-
     }
 
-    private void postData(String data) {
-        HttpURLConnection conn = null;
+    private void postData(final String data) {
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String postDataURL = "https://stegocrypto-server.herokuapp.com/sendData";
 
-        try {
-            URL url = new URL("https://stegocrypto-server.herokuapp.com/sendData");
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
+            StringRequest sr = new StringRequest(Request.Method.POST,postDataURL , new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.v("StegoCrypto", "Response from server: " + response);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.v("StegoCrypto", "POST data failed: " + error.getMessage());
+                }
+            }){
+                @Override
+                protected Map<String,String> getParams(){
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("data", Uri.encode(data));
+                    return params;
+                }
 
-            conn.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("Content-Type","application/x-www-form-urlencoded");
+                    return params;
+                }
+            };
 
-            conn.setRequestProperty("Content-Language", "en-US");
-
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            // read the response
-            //Send request
-            DataOutputStream wr = new DataOutputStream (
-                    conn.getOutputStream ());
-            wr.writeBytes (data);
-            wr.flush ();
-            wr.close ();
-        }
-        catch (Exception e) {
-            Log.v("StegoCrypto", "POST to server failed");
-         //
-        } finally {
-            conn.disconnect();
-        }
+            queue.add(sr);
     }
 }
 
