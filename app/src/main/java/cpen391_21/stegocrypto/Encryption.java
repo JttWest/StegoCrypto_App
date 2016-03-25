@@ -32,12 +32,13 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 
 public class Encryption extends AppCompatActivity implements View.OnClickListener{
-    Button selectLocBtn, sendDataBtn, browseImagesBtn;
+    Button selectLocBtn, sendDataBtn, cameraBtn, browseImagesBtn;
     TextView geo_key;
     ImageView ivSelectedImage;
 
-    final public static int SELECT_LOCATION_REQUEST = 1;
-    final public static int PICK_IMAGE_REQUEST = 2;
+    final private static int SELECT_LOCATION_REQUEST = 1;
+    final private static int PICK_IMAGE_REQUEST = 2;
+    final private static int CAMERA_REQUEST = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         selectLocBtn = (Button) findViewById(R.id.go_select_loc);
         sendDataBtn = (Button) findViewById(R.id.send_data);
         browseImagesBtn = (Button) findViewById(R.id.browseImagesBtn);
+        cameraBtn = (Button) findViewById(R.id.cameraBtn);
+
         ivSelectedImage = (ImageView) findViewById(R.id.ivSelectedImage);
 
         geo_key = (TextView) findViewById(R.id.geo_key);
@@ -55,6 +58,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         selectLocBtn.setOnClickListener(this);
         sendDataBtn.setOnClickListener(this);
         browseImagesBtn.setOnClickListener(this);
+        cameraBtn.setOnClickListener(this);
 
         /*
         selectLocBtn.setOnClickListener(new View.OnClickListener() {
@@ -101,6 +105,9 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 // Always show the chooser (if there are multiple options available)
                 startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
                 break;
+            case R.id.cameraBtn:
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
         }
     }
 
@@ -122,9 +129,16 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     ivSelectedImage.setImageBitmap(bitmap);
                 } catch (IOException e) {e.printStackTrace();}
                 break;
+            case CAMERA_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    Bitmap photo = (Bitmap) data.getExtras().get("data");
+                    ivSelectedImage.setImageBitmap(photo);
+                } else { Log.v("StegoCrypto-Camera", "bad camera result!"); }
+                break;
         }
-
     }
+
+
 
     /* will removing this later */
     private void postData(final String data) {

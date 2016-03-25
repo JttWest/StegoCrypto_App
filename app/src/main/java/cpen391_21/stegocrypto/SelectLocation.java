@@ -39,7 +39,7 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
                 // Closing select location activity and pass back selected coordinate
                 Intent intent = getIntent();
                 intent.putExtra("selectedCoord", currCoord);
-                setResult(Encryption.SELECT_LOCATION_REQUEST, intent);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
