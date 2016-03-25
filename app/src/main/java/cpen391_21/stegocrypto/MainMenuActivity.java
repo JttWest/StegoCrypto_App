@@ -35,44 +35,6 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         logoutBtn.setOnClickListener(this);
         goToSendDataBtn.setOnClickListener(this);
         goToDecryptBtn.setOnClickListener(this);
-
-        /*
-        goToLoginBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(i);
-            }
-        });
-
-        goToRegisterBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), RegisterActivity.class);
-                startActivity(i);
-            }
-        });
-
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                userLocalStore.clearUserData();
-                userLocalStore.setUserLoggedIn(false);
-                Intent i = new Intent(getApplicationContext(), MainMenuActivity.class);
-                startActivity(i);
-            }
-        });
-
-        goToSendDataBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), Encryption.class);
-                startActivity(i);
-            }
-        });
-
-        goToDecryptBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), Decryption.class);
-                startActivity(i);
-            }
-        });*/
     }
 
     @Override

@@ -1,26 +1,38 @@
 package cpen391_21.stegocrypto;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class SelectLocation extends FragmentActivity implements OnMapReadyCallback {
-    Button setGeoKeyBtn;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+public class SelectLocation extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
+    Button setGeoKeyBtn, findAddrBtn;
+    EditText edAddressData;
 
     private GoogleMap mMap;
     private Marker currMarker;
     private LatLng currCoord;
+
+    private Geocoder geoCoder;
 
     private LatLng VANCOVUER = new LatLng(49.246292, -123.116226);
 
@@ -33,16 +45,43 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        edAddressData = (EditText) findViewById(R.id.edAddressData);
+
         setGeoKeyBtn = (Button) findViewById(R.id.set_geo_key);
-        setGeoKeyBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
-                // Closing select location activity and pass back selected coordinate
+        findAddrBtn = (Button) findViewById(R.id.findAddrBtn);
+
+        setGeoKeyBtn.setOnClickListener(this);
+        findAddrBtn.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.set_geo_key:
                 Intent intent = getIntent();
                 intent.putExtra("selectedCoord", currCoord);
                 setResult(RESULT_OK, intent);
                 finish();
-            }
-        });
+                break;
+
+            case R.id.findAddrBtn:
+                String address = edAddressData.getText().toString();
+                try {
+                    List<Address> addresses = geoCoder.getFromLocationName(address, 1);
+                    LatLng newCoord = new LatLng((double) (addresses.get(0).getLatitude()),
+                                                 (double) (addresses.get(0).getLongitude()));
+
+                    currCoord = newCoord;
+                    currMarker.remove();
+                    currMarker = mMap.addMarker(new MarkerOptions().position(newCoord).title("New Marker"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newCoord, 15));
+
+                    // Zoom in, animating the camera.
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+
+                } catch (IOException e) { e.printStackTrace(); }
+                break;
+        }
     }
 
     /**
@@ -57,12 +96,14 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        geoCoder = new Geocoder(this, Locale.getDefault());
 
         // Add a marker in Sydney and move the camera
         LatLng startingLocation = VANCOVUER;
         currCoord = startingLocation;
         currMarker = mMap.addMarker(new MarkerOptions().position(startingLocation).title("Marker in Vancouver"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startingLocation, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startingLocation, 20));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -73,7 +114,6 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
                 currMarker.remove();
 
                 currMarker = mMap.addMarker(new MarkerOptions().position(coord).title("New Marker"));
-                //mMap.moveCamera(CameraUpdateFactory.newLatLng(coord));
                 currCoord = coord;
             }
         });

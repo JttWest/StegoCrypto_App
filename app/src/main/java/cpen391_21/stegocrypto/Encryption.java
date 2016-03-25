@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,10 +17,13 @@ import android.widget.TextView;
 
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import com.android.volley.AuthFailureError;
@@ -59,27 +63,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         sendDataBtn.setOnClickListener(this);
         browseImagesBtn.setOnClickListener(this);
         cameraBtn.setOnClickListener(this);
-
-        /*
-        selectLocBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), SelectLocation.class);
-                startActivityForResult(i, 1);
-
-
-            }
-        });
-
-        sendDataBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                EditText dataET = (EditText) findViewById(R.id.data_for_enc);
-                String dataForEnc = dataET.getText().toString();
-                postData(dataForEnc);
-
-                Intent i = new Intent(getApplicationContext(), MainMenuActivity.class);
-                startActivity(i);
-            }
-        });*/
     }
 
     @Override
@@ -132,6 +115,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             case CAMERA_REQUEST:
                 if (resultCode == RESULT_OK) {
                     Bitmap photo = (Bitmap) data.getExtras().get("data");
+
                     ivSelectedImage.setImageBitmap(photo);
                 } else { Log.v("StegoCrypto-Camera", "bad camera result!"); }
                 break;
