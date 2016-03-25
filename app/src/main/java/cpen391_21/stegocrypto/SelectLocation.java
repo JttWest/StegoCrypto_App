@@ -22,6 +22,8 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
     private Marker currMarker;
     private LatLng currCoord;
 
+    private LatLng VANCOVUER = new LatLng(49.246292, -123.116226);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +39,7 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
                 // Closing select location activity and pass back selected coordinate
                 Intent intent = getIntent();
                 intent.putExtra("selectedCoord", currCoord);
-                setResult(1, intent);
+                setResult(Encryption.SELECT_LOCATION_REQUEST, intent);
                 finish();
             }
         });
@@ -57,9 +59,10 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng vancouver = new LatLng(49, -123);
-        currMarker = mMap.addMarker(new MarkerOptions().position(vancouver).title("Marker in Vancouver"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(vancouver));
+        LatLng startingLocation = VANCOVUER;
+        currCoord = startingLocation;
+        currMarker = mMap.addMarker(new MarkerOptions().position(startingLocation).title("Marker in Vancouver"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startingLocation, 15));
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override

@@ -17,7 +17,8 @@
             android:textStyle="bold"
             android:textSize="20sp"/>
 
-        <EditText android:id="@+id/data_for_enc"
+        <EditText
+            android:id="@+id/data_for_enc"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -55,14 +56,14 @@
             android:textStyle="bold"
             android:textSize="20sp"/>
 
-        <EditText android:id="@+id/geo_key"
+        <EditText
+            android:id="@+id/geo_key"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:hint="Geolocation key"
             />
-        <Button
-            android:id="@+id/go_select_loc"
+        <Button android:id="@+id/go_select_loc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="select" />
@@ -76,10 +77,12 @@
             android:textStyle="bold"
             android:textSize="20sp"/>
         <Button
+            android:id="@+id/cameraBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="camera" />
         <Button
+            android:id="@+id/browseImagesBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="browse" />
@@ -90,6 +93,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp">
         <ImageView
+            android:id="@+id/ivSelectedImage"
             android:src = "@drawable/dank_meme"
             android:layout_width="match_parent"
             android:layout_height="250dp"/>

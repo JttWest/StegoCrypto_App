@@ -11,7 +11,7 @@ import android.widget.TextView;
 import cpen391_21.stegocrypto.User.User;
 import cpen391_21.stegocrypto.User.UserLocalStore;
 
-public class MainMenuActivity extends AppCompatActivity {
+public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener{
     UserLocalStore userLocalStore;
     Button goToLoginBtn, goToRegisterBtn, logoutBtn, goToSendDataBtn, goToDecryptBtn;
     TextView displayName;
@@ -30,6 +30,13 @@ public class MainMenuActivity extends AppCompatActivity {
         goToDecryptBtn = (Button) findViewById(R.id.goToDecrypt);
         displayName = (TextView) findViewById(R.id.displayName);
 
+        goToLoginBtn.setOnClickListener(this);
+        goToRegisterBtn.setOnClickListener(this);
+        logoutBtn.setOnClickListener(this);
+        goToSendDataBtn.setOnClickListener(this);
+        goToDecryptBtn.setOnClickListener(this);
+
+        /*
         goToLoginBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), LoginActivity.class);
@@ -65,7 +72,35 @@ public class MainMenuActivity extends AppCompatActivity {
                 Intent i = new Intent(getApplicationContext(), Decryption.class);
                 startActivity(i);
             }
-        });
+        });*/
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.goToLogin:
+                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(i);
+                break;
+            case R.id.goToRegister:
+                Intent registerIntent = new Intent(getApplicationContext(), RegisterActivity.class);
+                startActivity(registerIntent);
+                break;
+            case R.id.logoutBtn:
+                userLocalStore.clearUserData();
+                userLocalStore.setUserLoggedIn(false);
+                Intent restartMenu = new Intent(getApplicationContext(), MainMenuActivity.class);
+                startActivity(restartMenu);
+                break;
+            case R.id.goToSendData:
+                Intent encrypt = new Intent(getApplicationContext(), Encryption.class);
+                startActivity(encrypt);
+                break;
+            case R.id.goToDecrypt:
+                Intent decrypt = new Intent(getApplicationContext(), Decryption.class);
+                startActivity(decrypt);
+                break;
+        }
     }
 
     @Override
