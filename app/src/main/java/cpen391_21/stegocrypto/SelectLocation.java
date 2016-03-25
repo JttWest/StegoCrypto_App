@@ -1,7 +1,9 @@
 package cpen391_21.stegocrypto;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -10,11 +12,15 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class SelectLocation extends FragmentActivity implements OnMapReadyCallback {
+    Button setGeoKeyBtn;
 
     private GoogleMap mMap;
+    private Marker currMarker;
+    private LatLng currCoord;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +31,13 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Button setGeoKeyBtn = (Button) findViewById(R.id.set_geo_key);
+        setGeoKeyBtn = (Button) findViewById(R.id.set_geo_key);
         setGeoKeyBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                //Closing Select Location Activity
+                // Closing select location activity and pass back selected coordinate
+                Intent intent = getIntent();
+                intent.putExtra("selectedCoord", currCoord);
+                setResult(1, intent);
                 finish();
             }
         });
@@ -48,8 +57,22 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng vancouver = new LatLng(49, -123);
+        currMarker = mMap.addMarker(new MarkerOptions().position(vancouver).title("Marker in Vancouver"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(vancouver));
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng coord) {
+
+                // 2 decimal points
+                Log.v("StegoCrypto", "lat: " + coord.latitude + "   long: " + coord.longitude);
+                currMarker.remove();
+
+                currMarker = mMap.addMarker(new MarkerOptions().position(coord).title("New Marker"));
+                //mMap.moveCamera(CameraUpdateFactory.newLatLng(coord));
+                currCoord = coord;
+            }
+        });
     }
 }

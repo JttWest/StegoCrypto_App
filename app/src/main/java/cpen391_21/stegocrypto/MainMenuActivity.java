@@ -6,12 +6,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
+import cpen391_21.stegocrypto.User.User;
 import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class MainMenuActivity extends AppCompatActivity {
     UserLocalStore userLocalStore;
     Button goToLoginBtn, goToRegisterBtn, logoutBtn, goToSendDataBtn, goToDecryptBtn;
+    TextView displayName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +28,7 @@ public class MainMenuActivity extends AppCompatActivity {
         logoutBtn = (Button) findViewById(R.id.logoutBtn);
         goToSendDataBtn = (Button) findViewById(R.id.goToSendData);
         goToDecryptBtn = (Button) findViewById(R.id.goToDecrypt);
+        displayName = (TextView) findViewById(R.id.displayName);
 
         goToLoginBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -71,10 +75,17 @@ public class MainMenuActivity extends AppCompatActivity {
             goToRegisterBtn.setVisibility(View.GONE);
             goToLoginBtn.setVisibility(View.GONE);
             logoutBtn.setVisibility(View.VISIBLE);
+
+            User currUser = userLocalStore.getLoggedInUser();
+            String userName = currUser.getUserName();
+            displayName.setText("Welcome: " + userName);
+            displayName.setVisibility((View.VISIBLE));
         } else {
             goToRegisterBtn.setVisibility(View.VISIBLE);
             goToLoginBtn.setVisibility(View.VISIBLE);
             logoutBtn.setVisibility(View.GONE);
+            displayName.setVisibility((View.GONE));
+
         }
     }
 

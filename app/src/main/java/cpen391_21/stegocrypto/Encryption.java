@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 import java.io.DataOutputStream;
@@ -23,8 +24,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 
 public class Encryption extends AppCompatActivity {
+    Button selectLocBtn, sendDataBtn;
+    TextView geo_key;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +37,16 @@ public class Encryption extends AppCompatActivity {
         setContentView(R.layout.activity_encyption);
 
         // register button to send user to selection location activity
-        Button selectLocBtn = (Button) findViewById(R.id.go_select_loc);
-        Button sendDataBtn = (Button) findViewById(R.id.send_data);
+        selectLocBtn = (Button) findViewById(R.id.go_select_loc);
+        sendDataBtn = (Button) findViewById(R.id.send_data);
+        geo_key = (TextView) findViewById(R.id.geo_key);
 
         selectLocBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), SelectLocation.class);
-                startActivity(i);
+                startActivityForResult(i, 1);
+
+
             }
         });
 
@@ -85,6 +93,18 @@ public class Encryption extends AppCompatActivity {
             };
 
             queue.add(sr);
+    }
+
+    // Function to read the result from select location activity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == 1){
+            LatLng coordResult = (LatLng) data.getExtras().get("selectedCoord");
+
+            geo_key.setText(coordResult.toString());
+        }
+
     }
 }
 

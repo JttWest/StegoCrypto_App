@@ -16,7 +16,7 @@ public class UserLocalStore {
 
     public void storeUserData(User user) {
         SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
-        userLocalDatabaseEditor.putString("username", user.getUserName());
+        userLocalDatabaseEditor.putString("userName", user.getUserName());
         userLocalDatabaseEditor.putString("password", user.getPassword());
         userLocalDatabaseEditor.commit();
     }

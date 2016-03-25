@@ -15,6 +15,12 @@
         android:layout_height="250dp"
         android:src="@mipmap/stegography_logo"/>
 
+    <TextView android:id="@+id/displayName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dip"/>
+
     <Button android:id="@+id/goToLogin"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
