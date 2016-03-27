@@ -7,8 +7,8 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:825891894079:android:9cf87f9e72eadf39",
-        "client_id": "android:cpen391_21.stegocrypto.GCM",
+        "mobilesdk_app_id": "1:825891894079:android:d73da8530f4d06b4",
+        "client_id": "android:cpen391_21.stegocrypto",
         "client_type": 1,
         "android_client_info": {
           "package_name": "cpen391_21.stegocrypto",

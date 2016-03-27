@@ -17,9 +17,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class HTTPCommands {
 
-    static public String  performPostCall(String requestURL,
-                                   HashMap<String, String> postDataParams) {
-
+    static public String performPostCall(String requestURL, HashMap<String, String> postDataParams) {
         URL url;
         String response = "";
         try {
