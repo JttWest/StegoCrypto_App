@@ -40,6 +40,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
     TextView geo_key;
     ImageView ivSelectedImage;
 
+    Uri cameraFileUri;
+
     final private static int SELECT_LOCATION_REQUEST = 1;
     final private static int PICK_IMAGE_REQUEST = 2;
     final private static int CAMERA_REQUEST = 3;
@@ -89,7 +91,37 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
                 break;
             case R.id.cameraBtn:
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                //Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+                // fetching the root directory
+                String rootDir = Environment.getExternalStorageDirectory().toString();
+
+                // Creating folders for Image
+                String imageFolderPath = rootDir + "/StegoCryptoImages";
+                File imagesFolder = new File(imageFolderPath);
+                imagesFolder.mkdirs(); // make directory if if doesn't exist
+
+                // Generating file name
+                String imageName = "temp.png";
+
+                // Creating image here
+
+                File image = new File(imageFolderPath, imageName);
+                int count = 2;
+                while (image.exists()){
+                    imageName = String.format("temp%d.png", count);
+                    image = new File(imageFolderPath, imageName);
+                    count++;
+                }
+
+                cameraFileUri = Uri.fromFile(image);
+
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraFileUri);
+
+                //startActivityForResult(takePictureIntent, CAMERA_IMAGE_REQUEST);
+
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
         }
     }
@@ -97,6 +129,9 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
     // retrieve result from select location activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_CANCELED)
+            return;
+
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case SELECT_LOCATION_REQUEST:
@@ -113,11 +148,12 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 } catch (IOException e) {e.printStackTrace();}
                 break;
             case CAMERA_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    Bitmap photo = (Bitmap) data.getExtras().get("data");
-
-                    ivSelectedImage.setImageBitmap(photo);
-                } else { Log.v("StegoCrypto-Camera", "bad camera result!"); }
+                //if (resultCode == RESULT_OK) {
+                    //Uri photo = (Uri) data.getExtras().get("data");
+                if (cameraFileUri != null)
+                    ivSelectedImage.setImageURI(cameraFileUri);
+                    //ivSelectedImage.setImageBitmap(photo);
+                //} else { Log.v("StegoCrypto-Camera", "bad camera result!"); }
                 break;
         }
     }

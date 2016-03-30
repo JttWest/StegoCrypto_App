@@ -8,10 +8,10 @@ public class UserLocalStore {
 
     public static final String SP_NAME = "userDetails";
 
-    SharedPreferences userLocalDatabase;
+    private SharedPreferences userLocalDatabase;
 
     public UserLocalStore(Context context) {
-        userLocalDatabase = context.getSharedPreferences(SP_NAME, 0);
+        userLocalDatabase = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
     }
 
     public void storeUserData(User user) {
