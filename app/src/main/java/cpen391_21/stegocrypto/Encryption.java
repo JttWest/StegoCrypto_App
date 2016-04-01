@@ -1,8 +1,9 @@
 package cpen391_21.stegocrypto;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,14 +17,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import com.android.volley.AuthFailureError;
@@ -35,10 +31,13 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 
+import cpen391_21.stegocrypto.User.UserLocalStore;
+
 public class Encryption extends AppCompatActivity implements View.OnClickListener{
     Button selectLocBtn, sendDataBtn, cameraBtn, browseImagesBtn;
     TextView geo_key;
-    ImageView ivSelectedImage;
+    EditText toUsername;
+    ImageView selectedImageIV;
 
     Uri cameraFileUri;
 
@@ -57,7 +56,9 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         browseImagesBtn = (Button) findViewById(R.id.browseImagesBtn);
         cameraBtn = (Button) findViewById(R.id.cameraBtn);
 
-        ivSelectedImage = (ImageView) findViewById(R.id.ivSelectedImage);
+        selectedImageIV = (ImageView) findViewById(R.id.ivSelectedImage);
+
+        toUsername = (EditText) findViewById(R.id.toUsername);
 
         geo_key = (TextView) findViewById(R.id.geo_key);
 
@@ -77,6 +78,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             case R.id.send_data:
                 EditText dataET = (EditText) findViewById(R.id.data_for_enc);
                 String dataForEnc = dataET.getText().toString();
+
+                //ServerRequests.HTTPCommands.performPostCall("https://stegocrypto-server.herokuapp.com/sendM")
                 postData(dataForEnc);
 
                 Intent backToMenu = new Intent(getApplicationContext(), MainMenuActivity.class);
@@ -144,20 +147,19 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     Log.v("StegoCrypto-Image", String.valueOf(bitmap));
 
-                    ivSelectedImage.setImageBitmap(bitmap);
+                    selectedImageIV.setImageBitmap(bitmap);
                 } catch (IOException e) {e.printStackTrace();}
                 break;
             case CAMERA_REQUEST:
                 //if (resultCode == RESULT_OK) {
                     //Uri photo = (Uri) data.getExtras().get("data");
                 if (cameraFileUri != null)
-                    ivSelectedImage.setImageURI(cameraFileUri);
-                    //ivSelectedImage.setImageBitmap(photo);
+                    selectedImageIV.setImageURI(cameraFileUri);
+                    //SelectedImageIV.setImageBitmap(photo);
                 //} else { Log.v("StegoCrypto-Camera", "bad camera result!"); }
                 break;
         }
     }
-
 
 
     /* will removing this later */
@@ -180,6 +182,12 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String, String>();
                 params.put("data", Uri.encode(data));
+                params.put("toUserName", Uri.encode(toUsername.getText().toString()));
+
+                SharedPreferences userLocalDatabase = getSharedPreferences(UserLocalStore.SP_NAME, Context.MODE_PRIVATE);
+                String from_username = userLocalDatabase.getString("userName", "");
+
+                params.put("fromUserName", Uri.encode(from_username));
                 return params;
             }
 

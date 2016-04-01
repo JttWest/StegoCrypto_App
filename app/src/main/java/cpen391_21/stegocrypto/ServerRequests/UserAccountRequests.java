@@ -2,6 +2,7 @@ package cpen391_21.stegocrypto.ServerRequests;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -29,6 +30,7 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import cpen391_21.stegocrypto.GCM.RegistrationIntentService;
 import cpen391_21.stegocrypto.ServerRequests.HTTPCommands;
 import cpen391_21.stegocrypto.User.User;
 import cpen391_21.stegocrypto.User.GetUserCallback;
@@ -92,14 +94,14 @@ public class UserAccountRequests {
                     Map<String,String> params = new HashMap<String, String>();
                     params.put("userName", Uri.encode(user.getUserName()));
                     params.put("password", Uri.encode(user.getPassword()));
-                    //params.put("instanceIDToken", Uri.encode(user.instanceIDToken));
+
                     return params;
                 }
 
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String,String> params = new HashMap<String, String>();
-                    params.put("Content-Type","application/x-www-form-urlencoded");
+                    params.put("Content-Type", "application/x-www-form-urlencoded");
                     return params;
                 }
             };
@@ -136,6 +138,12 @@ public class UserAccountRequests {
             HashMap<String, String> loginParams = new HashMap<String, String>();
             loginParams.put("userName", Uri.encode(user.getUserName()));
             loginParams.put("password", Uri.encode(user.getPassword()));
+
+            SharedPreferences GCM_SP = context.getSharedPreferences("GCM-attributes", Context.MODE_PRIVATE);
+            String instanceIDToken = GCM_SP.getString(RegistrationIntentService.INSTANCEID_TOKEN, null);
+
+            if (instanceIDToken != null)
+                loginParams.put("instanceIDToken", Uri.encode(instanceIDToken));
 
             String rawResponse = HTTPCommands.performPostCall(loginURL, loginParams);
 

@@ -35,6 +35,15 @@ public class Decryption extends AppCompatActivity {
     }
 
     private void displayData(final TextView decryptedDataTV) {
+
+        Intent i = getIntent();
+        String data = i.getStringExtra("data");
+
+        if (data != null){
+            decryptedDataTV.setText(data);
+        }
+
+        /*
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://stegocrypto-server.herokuapp.com/retrieveData";
@@ -58,5 +67,6 @@ public class Decryption extends AppCompatActivity {
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+        */
     }
 }

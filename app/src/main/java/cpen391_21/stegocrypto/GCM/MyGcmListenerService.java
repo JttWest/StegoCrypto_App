@@ -29,7 +29,7 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String message = data.getString("message");
+        String message = data.getString("data_package");
         Log.d(TAG, "From: " + from);
         Log.d(TAG, "Message: " + message);
 
@@ -63,6 +63,9 @@ public class MyGcmListenerService extends GcmListenerService {
      */
     private void sendNotification(String message) {
         Intent intent = new Intent(this, Decryption.class);
+
+        intent.putExtra("data", message);
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);

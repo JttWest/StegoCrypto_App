@@ -1,6 +1,7 @@
 package cpen391_21.stegocrypto.GCM;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -23,6 +24,7 @@ public class RegistrationIntentService extends IntentService {
 
     public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
+    public static final String INSTANCEID_TOKEN = "instanceIDToken";
 
     public RegistrationIntentService() {
         super(TAG);
@@ -30,7 +32,8 @@ public class RegistrationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = getSharedPreferences("GCM-attributes", Context.MODE_PRIVATE);
 
         try {
             // [START register_for_gcm]
@@ -55,6 +58,8 @@ public class RegistrationIntentService extends IntentService {
             // sent to your server. If the boolean is false, send the token to your server,
             // otherwise your server should have already received the token.
             sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
+
+            sharedPreferences.edit().putString(INSTANCEID_TOKEN, token).apply();
             // [END register_for_gcm]
         } catch (Exception e) {
             Log.v("StegoCrypto-GCM", "Failed to complete token refresh", e);
@@ -99,5 +104,7 @@ public class RegistrationIntentService extends IntentService {
         }
     }
     // [END subscribe_topics]
+
+
 
 }
