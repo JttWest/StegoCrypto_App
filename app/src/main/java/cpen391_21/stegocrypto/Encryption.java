@@ -34,7 +34,7 @@ import com.google.android.gms.maps.model.LatLng;
 import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class Encryption extends AppCompatActivity implements View.OnClickListener{
-    Button selectLocBtn, sendDataBtn, cameraBtn, browseImagesBtn;
+    Button selectLocBtn, sendDataBtn, cameraBtn, browseImagesBtn, drawBtn;
     TextView geo_key;
     EditText toUsername;
     ImageView selectedImageIV;
@@ -55,6 +55,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         sendDataBtn = (Button) findViewById(R.id.send_data);
         browseImagesBtn = (Button) findViewById(R.id.browseImagesBtn);
         cameraBtn = (Button) findViewById(R.id.cameraBtn);
+        drawBtn = (Button) findViewById(R.id.drawBtn);
 
         selectedImageIV = (ImageView) findViewById(R.id.ivSelectedImage);
 
@@ -66,6 +67,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         sendDataBtn.setOnClickListener(this);
         browseImagesBtn.setOnClickListener(this);
         cameraBtn.setOnClickListener(this);
+        drawBtn.setOnClickListener(this);
     }
 
     @Override
@@ -126,6 +128,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 //startActivityForResult(takePictureIntent, CAMERA_IMAGE_REQUEST);
 
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
+
+            case R.id.drawBtn:
+                Intent drawIntent = new Intent(getApplicationContext(), DrawingActivity.class);
+                startActivity(drawIntent);
         }
     }
 
@@ -184,7 +190,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 params.put("data", Uri.encode(data));
                 params.put("toUserName", Uri.encode(toUsername.getText().toString()));
 
-                SharedPreferences userLocalDatabase = getSharedPreferences(UserLocalStore.SP_NAME, Context.MODE_PRIVATE);
+                SharedPreferences userLocalDatabase = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME, Context.MODE_PRIVATE);
                 String from_username = userLocalDatabase.getString("userName", "");
 
                 params.put("fromUserName", Uri.encode(from_username));

@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,8 +13,12 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import cpen391_21.stegocrypto.Decryption;
 import cpen391_21.stegocrypto.R;
+import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class MyGcmListenerService extends GcmListenerService {
 
@@ -29,7 +34,32 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
+
+        SharedPreferences userLocalStore = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME,
+                                                                Context.MODE_PRIVATE);
+
+
         String message = data.getString("data_package");
+
+        // instanceTokenID could get out of sync due to network failure
+        // make sure the incoming data is intended for the correct user
+        try {
+            JSONObject JsonMsg = new JSONObject(message);
+            String toUserName = JsonMsg.getString("to_userName");
+
+            String currentLoginUserName = userLocalStore.getString("userName", "");
+
+            // ignore this message if current login user is not intended recipient
+            if (!toUserName.equals(currentLoginUserName)) {
+                // send request to server to remove instaceIDToken of this device from toUser account
+                return;
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
         Log.d(TAG, "From: " + from);
         Log.d(TAG, "Message: " + message);
 

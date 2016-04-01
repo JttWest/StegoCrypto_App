@@ -6,12 +6,12 @@ import android.content.SharedPreferences;
 
 public class UserLocalStore {
 
-    public static final String SP_NAME = "userDetails";
+    public static final String USER_LOCAL_STORE_SP_NAME = "userDetails";
 
     private SharedPreferences userLocalDatabase;
 
     public UserLocalStore(Context context) {
-        userLocalDatabase = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        userLocalDatabase = context.getSharedPreferences(USER_LOCAL_STORE_SP_NAME, Context.MODE_PRIVATE);
     }
 
     public void storeUserData(User user) {
