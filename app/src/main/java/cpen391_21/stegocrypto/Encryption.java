@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,6 +34,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 
+import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
 import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class Encryption extends AppCompatActivity implements View.OnClickListener{
@@ -44,6 +48,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
     final private static int SELECT_LOCATION_REQUEST = 1;
     final private static int PICK_IMAGE_REQUEST = 2;
     final private static int CAMERA_REQUEST = 3;
+    final private static int DRAW_REQUEST = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +86,26 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 EditText dataET = (EditText) findViewById(R.id.data_for_enc);
                 String dataForEnc = dataET.getText().toString();
 
-                //ServerRequests.HTTPCommands.performPostCall("https://stegocrypto-server.herokuapp.com/sendM")
-                postData(dataForEnc);
+                HashMap<String,String> params = new HashMap<String, String>();
+                SharedPreferences userLocalDatabase = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME, Context.MODE_PRIVATE);
+                String from_username = userLocalDatabase.getString("userName", "");
+
+                params.put("fromUserName", Uri.encode(from_username));
+                params.put("toUserName", Uri.encode(toUsername.getText().toString()));
+
+                // grab the current selected bitmap and convert it to base64 string
+                Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
+                Bitmap resizedBitmap = getResizedBitmap(bitmap, 250);
+
+                ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
+                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
+                String imageBase64 = Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
+
+                params.put("data", imageBase64);
+
+                DataTransferRequests dataTransferRequest = new DataTransferRequests(this);
+                dataTransferRequest.sendDataAsyncTask(params);
+                //postData(dataForEnc);
 
                 Intent backToMenu = new Intent(getApplicationContext(), MainMenuActivity.class);
                 startActivity(backToMenu);
@@ -128,10 +151,12 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 //startActivityForResult(takePictureIntent, CAMERA_IMAGE_REQUEST);
 
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                break;
 
             case R.id.drawBtn:
                 Intent drawIntent = new Intent(getApplicationContext(), DrawingActivity.class);
-                startActivity(drawIntent);
+                startActivityForResult(drawIntent, DRAW_REQUEST);
+                break;
         }
     }
 
@@ -163,6 +188,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     selectedImageIV.setImageURI(cameraFileUri);
                     //SelectedImageIV.setImageBitmap(photo);
                 //} else { Log.v("StegoCrypto-Camera", "bad camera result!"); }
+                break;
+            case DRAW_REQUEST:
+                Bitmap bitmap = (Bitmap) data.getParcelableExtra("drawingBitmap");
+                selectedImageIV.setImageBitmap(bitmap);
                 break;
         }
     }
@@ -206,6 +235,24 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         };
 
         queue.add(sr);
+    }
+
+
+    // returns a resized Bitmap while keeping its ratios
+    private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 }
 

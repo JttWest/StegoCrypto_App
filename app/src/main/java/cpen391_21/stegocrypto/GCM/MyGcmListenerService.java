@@ -45,7 +45,7 @@ public class MyGcmListenerService extends GcmListenerService {
         // make sure the incoming data is intended for the correct user
         try {
             JSONObject JsonMsg = new JSONObject(message);
-            String toUserName = JsonMsg.getString("to_userName");
+            String toUserName = JsonMsg.getString("toUserName");
 
             String currentLoginUserName = userLocalStore.getString("userName", "");
 
@@ -100,10 +100,11 @@ public class MyGcmListenerService extends GcmListenerService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
+
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.stegography_logo)
-                .setContentTitle("GCM Message")
+                .setContentTitle("StegoCrpyto")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

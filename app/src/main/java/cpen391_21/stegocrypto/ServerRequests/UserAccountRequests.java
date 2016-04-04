@@ -15,23 +15,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
 
 import cpen391_21.stegocrypto.GCM.RegistrationIntentService;
-import cpen391_21.stegocrypto.ServerRequests.HTTPCommands;
 import cpen391_21.stegocrypto.User.User;
 import cpen391_21.stegocrypto.User.GetUserCallback;
 
@@ -153,41 +144,6 @@ public class UserAccountRequests {
                     returnedUser = new User(user.getUserName(), user.getPassword());
             } catch (JSONException e) {e.printStackTrace();}
 
-
-            /*
-            RequestQueue queue = Volley.newRequestQueue(context);
-            String postDataURL = SERVER_ADDRESS + "login";
-
-            StringRequest sr = new StringRequest(Request.Method.POST, postDataURL, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    updateUserIfSuccess(response);
-                    Log.v("StegoCrypto", "Response from server: " + response);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.v("StegoCrypto", "Login POST data failed: " + error.getMessage());
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("userName", Uri.encode(user.getUserName()));
-                    params.put("password", Uri.encode(user.getPassword()));
-                    //params.put("instanceIDTokens", Uri.encode(user.instanceIDTokens));
-                    return params;
-                }
-
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("Content-Type", "application/x-www-form-urlencoded");
-                    return params;
-                }
-            };
-            queue.add(sr);
-            */
             return returnedUser;
         }
 

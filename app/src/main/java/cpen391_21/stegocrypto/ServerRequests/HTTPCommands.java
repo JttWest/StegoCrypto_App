@@ -1,5 +1,7 @@
 package cpen391_21.stegocrypto.ServerRequests;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStream;
@@ -17,6 +19,39 @@ import javax.net.ssl.HttpsURLConnection;
 
 
 public class HTTPCommands {
+    public static final String SERVER_URL = "https://stegocrypto-server.herokuapp.com/";
+
+
+    static  public String performGetCall(String requestURL) {
+        URL url;
+        String response = "";
+        try {
+            url = new URL(requestURL);
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
+            conn.setDoInput(true);
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = br.readLine()) != null) {
+                    response += line;
+                }
+            } else {
+                Log.d("StegoCrypto-server", "Request to " + requestURL + " failed.");
+                response = "";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
 
     static public String performPostCall(String requestURL, HashMap<String, String> postDataParams) {
         URL url;
@@ -30,7 +65,6 @@ public class HTTPCommands {
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
-
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
@@ -50,12 +84,12 @@ public class HTTPCommands {
                 }
             }
             else {
+                Log.d("StegoCrypto-server", "Request to " + requestURL + " failed.");
                 response="";
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return response;
     }
 

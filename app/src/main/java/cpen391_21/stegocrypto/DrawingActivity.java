@@ -2,6 +2,8 @@ package cpen391_21.stegocrypto;
 
 import java.util.UUID;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.app.Activity;
@@ -9,6 +11,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -86,8 +90,8 @@ public class DrawingActivity extends Activity implements OnClickListener {
             String color = view.getTag().toString();
             drawView.setColor(color);
             //update ui
-            imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
-            currPaint.setImageDrawable(getResources().getDrawable(R.drawable.paint));
+            imgView.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.paint_pressed, null));
+            currPaint.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.paint, null));
             currPaint=(ImageButton)view;
         }
     }
@@ -102,7 +106,7 @@ public class DrawingActivity extends Activity implements OnClickListener {
             brushDialog.setContentView(R.layout.brush_chooser);
             //listen for clicks on size buttons
             ImageButton smallBtn = (ImageButton)brushDialog.findViewById(R.id.small_brush);
-            smallBtn.setOnClickListener(new OnClickListener(){
+            smallBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     drawView.setErase(false);
@@ -112,7 +116,7 @@ public class DrawingActivity extends Activity implements OnClickListener {
                 }
             });
             ImageButton mediumBtn = (ImageButton)brushDialog.findViewById(R.id.medium_brush);
-            mediumBtn.setOnClickListener(new OnClickListener(){
+            mediumBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     drawView.setErase(false);
@@ -122,7 +126,7 @@ public class DrawingActivity extends Activity implements OnClickListener {
                 }
             });
             ImageButton largeBtn = (ImageButton)brushDialog.findViewById(R.id.large_brush);
-            largeBtn.setOnClickListener(new OnClickListener(){
+            largeBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     drawView.setErase(false);
@@ -188,6 +192,19 @@ public class DrawingActivity extends Activity implements OnClickListener {
             newDialog.show();
         }
         else if(view.getId()==R.id.save_btn){
+            Intent intent = new Intent();
+
+            drawView.setDrawingCacheEnabled(true);
+            Bitmap drawingBitmap = getResizedBitmap(drawView.getDrawingCache(), 300);
+            Log.d("StegoCrpto-image", "Image is " + String.valueOf(drawingBitmap.getByteCount()) + " bytes");
+            intent.putExtra("drawingBitmap", drawingBitmap);
+
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+
+        /*
+        else if(view.getId()==R.id.save_btn){
             //save drawing
             AlertDialog.Builder saveDialog = new AlertDialog.Builder(this);
             saveDialog.setTitle("Save drawing");
@@ -221,6 +238,24 @@ public class DrawingActivity extends Activity implements OnClickListener {
             });
             saveDialog.show();
         }
+        */
+    }
+
+    // returns a resized Bitmap while keeping its ratios
+    private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
 }
