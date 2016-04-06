@@ -40,7 +40,7 @@ import cpen391_21.stegocrypto.User.UserLocalStore;
 import cpen391_21.stegocrypto.Utility.ImageUtility;
 
 public class Encryption extends AppCompatActivity implements View.OnClickListener{
-    Button selectLocBtn, sendDataBtn, cameraBtn, browseImagesBtn, drawBtn;
+    Button selectLocBtn, enc_data, sendDataBtn, cameraBtn, browseImagesBtn, drawBtn;
     TextView geo_key;
     EditText toUsername;
     ImageView selectedImageIV;
@@ -60,6 +60,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         // register button to send user to selection location activity
         selectLocBtn = (Button) findViewById(R.id.go_select_loc);
         sendDataBtn = (Button) findViewById(R.id.send_data);
+        enc_data = (Button) findViewById(R.id.enc_data);
         browseImagesBtn = (Button) findViewById(R.id.browseImagesBtn);
         cameraBtn = (Button) findViewById(R.id.cameraBtn);
         drawBtn = (Button) findViewById(R.id.drawBtn);
@@ -72,6 +73,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
         selectLocBtn.setOnClickListener(this);
         sendDataBtn.setOnClickListener(this);
+        enc_data.setOnClickListener(this);
         browseImagesBtn.setOnClickListener(this);
         cameraBtn.setOnClickListener(this);
         drawBtn.setOnClickListener(this);
@@ -97,33 +99,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
                 // grab the current selected bitmap and convert it to base64 string
                 Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
-                Bitmap resizedBitmap = getResizedBitmap(bitmap, 500);
-
-
-                //----testing saving bitmap into BMP and saving to local storage
-
-                try {
-                    String rootDir = Environment.getExternalStorageDirectory().toString();
-
-
-                    boolean status = ImageUtility.save(resizedBitmap, rootDir + "/StegoCrypto.bmp");
-
-
-
-                    // convert Bitmap to BMP image and retrieve the ByteBuffer
-
-
-                    /*
-                    if (!status)
-                        Log.v("StegoCrpyto-image", "Unable to save image");*/
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.v("StegoCrpyto-image", "Unable to save image");
-                }
-
-
-
-                //--end testing
+                Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
 
                 ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
@@ -137,6 +113,29 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
                 Intent backToMenu = new Intent(getApplicationContext(), MainMenuActivity.class);
                 startActivity(backToMenu);
+                break;
+            case R.id.enc_data:
+                /*
+                try {
+                    String rootDir = Environment.getExternalStorageDirectory().toString();
+
+
+                    boolean status = ImageUtility.save(resizedBitmap, rootDir + "/StegoCrypto.bmp");
+
+
+                    // BLUETOOTH INTEGRATION HERE
+                    // retrieve currrent selected image
+                    // convert Bitmap to BMP image and retrieve the ByteBuffer
+                    // send to Bluetooth
+                    // update current selected image with encrypted version
+
+                    if (!status)
+                        Log.v("StegoCrpyto-image", "Unable to save image");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.v("StegoCrpyto-image", "Unable to save image");
+                }*/
+
                 break;
             case R.id.browseImagesBtn:
                 Intent intent = new Intent();
@@ -203,23 +202,23 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             case PICK_IMAGE_REQUEST:
                 Uri uri = data.getData();
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                    Log.v("StegoCrypto-Image", String.valueOf(bitmap));
+                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    Log.v("StegoCrypto-Image", String.valueOf(imageBitmap));
 
-                    selectedImageIV.setImageBitmap(bitmap);
+                    selectedImageIV.setImageBitmap(ImageUtility.getResizedBitmap(imageBitmap, ImageUtility.MAX_IMAGE_SIZE));
                 } catch (IOException e) {e.printStackTrace();}
                 break;
             case CAMERA_REQUEST:
-                //if (resultCode == RESULT_OK) {
-                    //Uri photo = (Uri) data.getExtras().get("data");
-                if (cameraFileUri != null)
-                    selectedImageIV.setImageURI(cameraFileUri);
-                    //SelectedImageIV.setImageBitmap(photo);
-                //} else { Log.v("StegoCrypto-Camera", "bad camera result!"); }
+                if (cameraFileUri != null) {
+                    try {
+                        Bitmap cameraBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), cameraFileUri);
+                        selectedImageIV.setImageBitmap(ImageUtility.getResizedBitmap(cameraBitmap, ImageUtility.MAX_IMAGE_SIZE));
+                    } catch (IOException e) {e.printStackTrace();}
+                }
                 break;
             case DRAW_REQUEST:
-                Bitmap bitmap = (Bitmap) data.getParcelableExtra("drawingBitmap");
-                selectedImageIV.setImageBitmap(bitmap);
+                Bitmap drawBitmap = data.getParcelableExtra("drawingBitmap");
+                selectedImageIV.setImageBitmap(ImageUtility.getResizedBitmap(drawBitmap, ImageUtility.MAX_IMAGE_SIZE));
                 break;
         }
     }
@@ -263,24 +262,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         };
 
         queue.add(sr);
-    }
-
-
-    // returns a resized Bitmap while keeping its ratios
-    private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-
-        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 }
 

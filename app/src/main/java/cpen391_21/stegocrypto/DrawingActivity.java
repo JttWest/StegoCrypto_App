@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import cpen391_21.stegocrypto.Drawing.DrawingView;
+import cpen391_21.stegocrypto.Utility.ImageUtility;
 
 public class DrawingActivity extends Activity implements OnClickListener {
 
@@ -195,7 +196,7 @@ public class DrawingActivity extends Activity implements OnClickListener {
             Intent intent = new Intent();
 
             drawView.setDrawingCacheEnabled(true);
-            Bitmap drawingBitmap = getResizedBitmap(drawView.getDrawingCache(), 300);
+            Bitmap drawingBitmap = ImageUtility.getResizedBitmap(drawView.getDrawingCache(), ImageUtility.MAX_IMAGE_SIZE);
             Log.d("StegoCrpto-image", "Image is " + String.valueOf(drawingBitmap.getByteCount()) + " bytes");
             intent.putExtra("drawingBitmap", drawingBitmap);
 
@@ -240,22 +241,4 @@ public class DrawingActivity extends Activity implements OnClickListener {
         }
         */
     }
-
-    // returns a resized Bitmap while keeping its ratios
-    private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-
-        return Bitmap.createScaledBitmap(image, width, height, true);
-    }
-
 }

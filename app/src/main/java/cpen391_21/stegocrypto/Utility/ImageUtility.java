@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 
 
 public class ImageUtility {
+    public static final int MAX_IMAGE_SIZE = 300;
+
     private static final int BMP_WIDTH_OF_TIMES = 4;
     private static final int BYTE_PER_PIXEL = 3;
 
@@ -38,14 +40,14 @@ public class ImageUtility {
      * @param filePath
      * @return file saved result
      */
-    public static boolean save(Bitmap orgBitmap, String filePath) throws IOException {
+    public static ByteBuffer save(Bitmap orgBitmap, String filePath) throws IOException {
         long start = System.currentTimeMillis();
         if(orgBitmap == null){
-            return false;
+            return null;
         }
 
         if(filePath == null){
-            return false;
+            return null;
         }
 
         boolean isSaveSuccess = true;
@@ -158,15 +160,15 @@ public class ImageUtility {
         }
 
         // return the byte buffer instead of saving to file
-        // return buffer;
+        return buffer;
 
-
+        /*
         FileOutputStream fos = new FileOutputStream(filePath);
         fos.write(buffer.array());
         fos.close();
         Log.v("AndroidBmpUtil", System.currentTimeMillis() - start + " ms");
 
-        return isSaveSuccess;
+        return isSaveSuccess;*/
     }
 
     /**
@@ -200,4 +202,7 @@ public class ImageUtility {
 
         return b;
     }
+
+    // Sets the images view t
+
 }
