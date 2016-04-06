@@ -1,4 +1,4 @@
-package cpen391_21.stegocrypto.Bluetooth;
+package cpen391_21.stegocrypto.StegocryptoHardware;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -15,8 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-public class BluetoothDataTransfer {
-    private static String TAG = "BluetoothDataTransfer";
+public class StegocryptoHardware {
+    private static String TAG = "StegocryptoHardware";
 
     /* Hardcoding our BT dongle's MAC address */
     private static final String BLUETOOTH_MAC_ADDR = "00:06:66:6C:A7:A5";
@@ -35,7 +35,7 @@ public class BluetoothDataTransfer {
     private final Context baseContext;
     private final Activity activity;
 
-    public BluetoothDataTransfer(Activity activity, Context baseContext) {
+    public StegocryptoHardware(Activity activity, Context baseContext) {
         this.baseContext = baseContext;
         this.activity = activity;
         bluetoothIn = new BroadcastHandler();
