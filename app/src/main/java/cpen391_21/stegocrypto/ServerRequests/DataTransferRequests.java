@@ -36,7 +36,7 @@ public class DataTransferRequests {
     }
 
     public void retrieveDataAsyncTask(String url, ImageView imageView){
-        progressDialog.setTitle("Retriving data from server...");
+        progressDialog.setTitle("Retrieving data from server...");
         progressDialog.setMessage("Please wait...");
         progressDialog.show();
         new RetrieveDataAsyncTask(imageView).execute(url);
