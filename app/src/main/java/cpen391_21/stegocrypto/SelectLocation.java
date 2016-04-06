@@ -68,16 +68,22 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
                 String address = edAddressData.getText().toString();
                 try {
                     List<Address> addresses = geoCoder.getFromLocationName(address, 1);
+
+                    if (addresses == null || addresses.isEmpty()){
+                        Toast.makeText(getApplicationContext(), "Location doesn't exist.", Toast.LENGTH_SHORT);
+                        break;
+                    }
+
                     LatLng newCoord = new LatLng((double) (addresses.get(0).getLatitude()),
                                                  (double) (addresses.get(0).getLongitude()));
 
                     currCoord = newCoord;
                     currMarker.remove();
                     currMarker = mMap.addMarker(new MarkerOptions().position(newCoord).title("New Marker"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newCoord, 15));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newCoord, 10));
 
                     // Zoom in, animating the camera.
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
 
                 } catch (IOException e) { e.printStackTrace(); }
                 break;

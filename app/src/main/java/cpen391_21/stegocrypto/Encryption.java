@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
 import cpen391_21.stegocrypto.User.UserLocalStore;
+import cpen391_21.stegocrypto.Utility.ImageUtility;
 
 public class Encryption extends AppCompatActivity implements View.OnClickListener{
     Button selectLocBtn, sendDataBtn, cameraBtn, browseImagesBtn, drawBtn;
@@ -95,7 +97,33 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
                 // grab the current selected bitmap and convert it to base64 string
                 Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
-                Bitmap resizedBitmap = getResizedBitmap(bitmap, 250);
+                Bitmap resizedBitmap = getResizedBitmap(bitmap, 500);
+
+
+                //----testing saving bitmap into BMP and saving to local storage
+
+                try {
+                    String rootDir = Environment.getExternalStorageDirectory().toString();
+
+
+                    boolean status = ImageUtility.save(resizedBitmap, rootDir + "/StegoCrypto.bmp");
+
+
+
+                    // convert Bitmap to BMP image and retrieve the ByteBuffer
+
+
+                    /*
+                    if (!status)
+                        Log.v("StegoCrpyto-image", "Unable to save image");*/
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.v("StegoCrpyto-image", "Unable to save image");
+                }
+
+
+
+                //--end testing
 
                 ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
