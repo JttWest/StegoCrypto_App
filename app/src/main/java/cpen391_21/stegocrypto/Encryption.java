@@ -122,7 +122,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
                     boolean status = ImageUtility.save(resizedBitmap, rootDir + "/StegoCrypto.bmp");
 
-
+                    //TODO add bluetooth
                     // BLUETOOTH INTEGRATION HERE
                     // retrieve currrent selected image
                     // convert Bitmap to BMP image and retrieve the ByteBuffer

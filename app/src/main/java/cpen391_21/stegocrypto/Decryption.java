@@ -75,6 +75,7 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
         switch (view.getId()) {
             case R.id.decryptedBtn:
                 decryptedDataTV.setText("Decrpyted data appears here");
+                //TODO: bluetooth data, wait for decryption
                 break;
         }
     }

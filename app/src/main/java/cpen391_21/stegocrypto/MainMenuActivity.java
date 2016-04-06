@@ -82,7 +82,6 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             goToLoginBtn.setVisibility(View.VISIBLE);
             logoutBtn.setVisibility(View.GONE);
             displayName.setVisibility((View.GONE));
-
         }
     }
 
