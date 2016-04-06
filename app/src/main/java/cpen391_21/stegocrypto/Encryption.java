@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -35,6 +34,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 
+import cpen391_21.stegocrypto.Bluetooth.BluetoothDataTransfer;
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
 import cpen391_21.stegocrypto.User.UserLocalStore;
 import cpen391_21.stegocrypto.Utility.ImageUtility;
@@ -46,6 +46,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
     ImageView selectedImageIV;
 
     Uri cameraFileUri;
+
+    private BluetoothDataTransfer bluetooth;
 
     final private static int SELECT_LOCATION_REQUEST = 1;
     final private static int PICK_IMAGE_REQUEST = 2;
@@ -77,6 +79,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         browseImagesBtn.setOnClickListener(this);
         cameraBtn.setOnClickListener(this);
         drawBtn.setOnClickListener(this);
+
+        bluetooth = new BluetoothDataTransfer(this, this.getBaseContext());
     }
 
     @Override
@@ -123,6 +127,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     boolean status = ImageUtility.save(resizedBitmap, rootDir + "/StegoCrypto.bmp");
 
                     //TODO add bluetooth
+
                     // BLUETOOTH INTEGRATION HERE
                     // retrieve currrent selected image
                     // convert Bitmap to BMP image and retrieve the ByteBuffer
@@ -135,6 +140,9 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     e.printStackTrace();
                     Log.v("StegoCrpyto-image", "Unable to save image");
                 }*/
+                bluetooth.init();
+                bluetooth.sendToHardware("Hello\n");
+                bluetooth.fini();
 
                 break;
             case R.id.browseImagesBtn:
