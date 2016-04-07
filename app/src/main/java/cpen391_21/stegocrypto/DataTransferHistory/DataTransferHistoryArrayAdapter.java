@@ -3,6 +3,12 @@ package cpen391_21.stegocrypto.DataTransferHistory;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.PorterDuff;
+import android.graphics.Shader;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +45,17 @@ public class DataTransferHistoryArrayAdapter extends ArrayAdapter<DataTransferHi
         actionTV.setText(dataTransferHistoryArray.get(position).action);
         usernameTV.setText(dataTransferHistoryArray.get(position).username);
         dateTV.setText(dataTransferHistoryArray.get(position).date);
+
+        int h = row.getHeight();
+        ShapeDrawable mDrawable = new ShapeDrawable(new RectShape());
+
+        if (dataTransferHistoryArray.get(position).action.equals("TO: ")) {
+            mDrawable.getPaint().setShader(new LinearGradient(0, 0, 0, h, Color.parseColor("#880000FF"), Color.parseColor("#110000FF"), Shader.TileMode.REPEAT));
+        } else {
+            mDrawable.getPaint().setShader(new LinearGradient(0, 0, 0, h, Color.parseColor("#330000AA"), Color.parseColor("#110000AA"), Shader.TileMode.REPEAT));
+        }
+
+        row.setBackground(mDrawable);
 
         /* Example from reference -- remove after demo
         ImageView icon = (ImageView) row.findViewById (R.id.BTicon);
