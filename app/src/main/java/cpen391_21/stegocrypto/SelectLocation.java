@@ -59,7 +59,12 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
         switch (view.getId()) {
             case R.id.set_geo_key:
                 Intent intent = getIntent();
-                intent.putExtra("selectedCoord", currCoord);
+
+                double latitudeString = currCoord.latitude;
+                double longitudeString = currCoord.longitude;
+
+                String selectedCoordString = String.format("%.3f,%.3f", latitudeString, longitudeString);;
+                intent.putExtra("selectedCoord", selectedCoordString);
                 setResult(RESULT_OK, intent);
                 finish();
                 break;
@@ -70,7 +75,7 @@ public class SelectLocation extends FragmentActivity implements OnMapReadyCallba
                     List<Address> addresses = geoCoder.getFromLocationName(address, 1);
 
                     if (addresses == null || addresses.isEmpty()){
-                        Toast.makeText(getApplicationContext(), "Location doesn't exist.", Toast.LENGTH_SHORT);
+                        Toast.makeText(this, "Location doesn't exist.", Toast.LENGTH_SHORT);
                         break;
                     }
 

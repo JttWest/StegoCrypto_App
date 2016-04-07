@@ -25,6 +25,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
@@ -94,8 +95,15 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                  /* Get the image data */
 
                 /* TODO: get real image data. For now, import from hardcoded file */
-                String rootDir = Environment.getExternalStorageDirectory().toString();
-                byte[] bytes = ImageUtility.readFromFile(rootDir + "/stegoCrypto1.bmp");
+                //String rootDir = Environment.getExternalStorageDirectory().toString();
+                //byte[] bytes = ImageUtility.readFromFile(rootDir + "/stegoCrypto1.bmp");
+                // Retrieve bytes from current image from display
+                imageDisplayIV.setDrawingCacheEnabled(true);
+                imageDisplayIV.buildDrawingCache();
+                Bitmap imageBitmap = view.getDrawingCache();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] bytes = stream.toByteArray();
 
                // Bitmap bitmap = ((BitmapDrawable)imageDisplayIV.getDrawable()).getBitmap();
                // Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);

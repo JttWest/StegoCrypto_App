@@ -156,8 +156,11 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 }
 
                 /* TODO: take values from edittext when GoogleMaps API works */
-                String longitude = "-123.251";
-                String latitude = "49.261";
+
+                String[] latAndLongArray = geo_key.getText().toString().split(",");
+
+                String latitude = latAndLongArray[0]; //"49.261";
+                String longitude = latAndLongArray[1]; //"-123.251";
 
                 /* Get the image data */
                 bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
@@ -245,8 +248,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case SELECT_LOCATION_REQUEST:
-                LatLng coordResult = (LatLng) data.getExtras().get("selectedCoord");
-                geo_key.setText(coordResult.toString());
+                String coordResult = (String) data.getExtras().get("selectedCoord");
+                geo_key.setText(coordResult);
                 break;
             case PICK_IMAGE_REQUEST:
                 Uri uri = data.getData();
