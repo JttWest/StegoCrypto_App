@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.Buffer;
@@ -43,10 +44,12 @@ public class ImageUtility {
     public static ByteBuffer save(Bitmap orgBitmap, String filePath) throws IOException {
         long start = System.currentTimeMillis();
         if(orgBitmap == null){
+            Log.e("ImageUtility", "orgBitmap was NULL");
             return null;
         }
 
         if(filePath == null){
+            Log.e("ImageUtility", "filePath was NULL");
             return null;
         }
 
@@ -160,6 +163,7 @@ public class ImageUtility {
         }
 
         // return the byte buffer instead of saving to file
+        Log.e("ImageUtility", "buffer returning... size is " + buffer.array().length);
         return buffer;
 
         /*
@@ -169,6 +173,31 @@ public class ImageUtility {
         Log.v("AndroidBmpUtil", System.currentTimeMillis() - start + " ms");
 
         return isSaveSuccess;*/
+    }
+
+    public static void writeToFile(String filePath, byte[] data) {
+        try {
+            FileOutputStream fos = new FileOutputStream(filePath);
+            fos.write(data);
+            fos.close();
+        } catch (IOException e) {
+            Log.e("ImageUtility", "Could not write to file: " + e.getMessage());
+        }
+    }
+
+    public static byte[] readFromFile(String filePath) {
+        byte[] buffer = null;
+        try {
+            File file = new File(filePath);
+            buffer = new byte[(int) file.length()];
+            FileInputStream fis = new FileInputStream(filePath);
+            fis.read(buffer);
+            fis.close();
+        } catch (IOException e) {
+            Log.e("ImageUtility", "Could not read from file: " + e.getMessage());
+        }
+
+        return buffer;
     }
 
     /**

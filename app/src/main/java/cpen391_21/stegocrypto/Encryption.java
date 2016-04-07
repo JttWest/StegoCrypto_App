@@ -1,11 +1,13 @@
 package cpen391_21.stegocrypto;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +50,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
     Uri cameraFileUri;
 
+    private ProgressDialog progressDialog;
     private StegocryptoHardware bluetooth;
+    private byte[] stegoTaskResult;
+    private boolean stegoTaskDone;
 
     final private static int SELECT_LOCATION_REQUEST = 1;
     final private static int PICK_IMAGE_REQUEST = 2;
@@ -80,7 +86,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         cameraBtn.setOnClickListener(this);
         drawBtn.setOnClickListener(this);
 
-        bluetooth = new StegocryptoHardware(this, this.getBaseContext());
+        bluetooth = new StegocryptoHardware();
+        progressDialog = new ProgressDialog(this);
     }
 
     @Override
@@ -140,16 +147,43 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     e.printStackTrace();
                     Log.v("StegoCrpyto-image", "Unable to save image");
                 }*/
-                bluetooth.init();
+
+                /* Get the data */
                 dataET = (EditText) findViewById(R.id.data_for_enc);
                 String data = dataET.getText().toString();
-                Log.i("Bluetooth", "Sending: " + data);
-                bluetooth.sendToHardware(data);
-                String ret = bluetooth.receiveFromHardware(data.length());
-                Log.i("Bluetooth", "Received: " + ret);
+                if (data.equals("")) {
+                    data = "(no data)";
+                }
 
-                try { Thread.sleep(1000); } catch (Exception e) {};
-                bluetooth.fini();
+                /* TODO: take values from edittext when GoogleMaps API works */
+                String longitude = "-123.251";
+                String latitude = "49.261";
+
+                /* Get the image data */
+                bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
+                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
+                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 50);
+                try {
+                    ByteBuffer imagedatabb = ImageUtility.save(resizedBitmap, "current.bmp");
+
+                    if (imagedatabb == null) {
+                        Log.e("Encryption", "Bitmap was NULL!");
+                    } else {
+//                        byte[] imgbyte = new byte[imagedatabb.remaining()];
+//                        imagedatabb.get(imgbyte, 0, imgbyte.length);
+                        byte[] imgbyte = imagedatabb.array();
+                        Log.e("Encryption", "Bitmap has size " + imgbyte.length + " bytes");
+
+                        /* Send the data to the hardware */
+                        new StegoCryptoEncrypt().execute(data.getBytes(), longitude.getBytes(), latitude.getBytes(), imgbyte);
+                    }
+                } catch (Exception e) {
+                    Log.e("Encryption", "Could not convert bitmap");
+                }
+
+
+
+
 
                 break;
             case R.id.browseImagesBtn:
@@ -277,6 +311,77 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         };
 
         queue.add(sr);
+    }
+
+
+    private class StegoCryptoEncrypt extends AsyncTask<byte[], Integer, byte[]> {
+
+        /**
+         *
+         * @param bytes bytes[0]: text data
+         *              bytes[1]: longitude
+         *              bytes[2]: latitude
+         *              bytes[3]: image
+         * @return
+         */
+        @Override
+        protected byte[] doInBackground(byte[]... bytes) {
+            long totalSize = 0;
+
+            bluetooth.init();
+
+            Log.i("Bluetooth", "Selecting encryption: ");
+            bluetooth.selectOption(StegocryptoHardware.OPT.OPT_ENCRYPT);
+
+            Log.i("Bluetooth", "Sending text data: " + bytes[0]);
+            bluetooth.sendToHardware(bytes[0]);
+
+            Log.i("Bluetooth", "Sending longitude data");
+            bluetooth.sendToHardware(bytes[1]);
+            Log.i("Bluetooth", "Done sending longitude data");
+
+            Log.i("Bluetooth", "Sending latitude data");
+            bluetooth.sendToHardware(bytes[2]);
+            Log.i("Bluetooth", "Done sending latitude data");
+
+            Log.i("Bluetooth", "Sending image data");
+            bluetooth.sendToHardware(bytes[3]);
+            Log.i("Bluetooth", "Done sending image data");
+
+            byte[] ret = bluetooth.receiveFromHardware(10000);
+            if (ret != null) {
+                Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
+                totalSize = ret.length;
+            }
+
+            try { Thread.sleep(1000); } catch (Exception e) {};
+            bluetooth.fini();
+
+            return ret;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            /* Show progressDialog */
+            progressDialog.setMessage(getString(R.string.loadingEncryption));
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(byte[] result) {
+            stegoTaskResult = result;
+
+            if (result != null) {
+                String rootDir = Environment.getExternalStorageDirectory().toString();
+                ImageUtility.writeToFile(rootDir + "/stegoCrypto1.bmp", result);
+            }
+
+            stegoTaskDone = true;
+            progressDialog.dismiss();
+        }
     }
 }
 

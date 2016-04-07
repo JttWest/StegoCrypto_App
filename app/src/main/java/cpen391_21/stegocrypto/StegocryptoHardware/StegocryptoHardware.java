@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,22 +25,19 @@ public class StegocryptoHardware {
     /* SPP UUID service - this should work for most devices */
     private static final UUID BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    /* Used to identify handler message */
-    final int handlerState = 0;
+    /* Bluetooth functions */
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
-    Handler bluetoothIn;
     private StegocryptoDataProtocol stegocryptoProtocol;
 
-    private final Context baseContext;
-    private final Activity activity;
+    /* Enum declarations */
+    public enum OPT {OPT_ENCRYPT, OPT_DECRYPT};
 
-    public StegocryptoHardware(Activity activity, Context baseContext) {
-        this.baseContext = baseContext;
-        this.activity = activity;
-        bluetoothIn = new BroadcastHandler();
+    /* Defaults */
+    private int DEFAULT_TIMEOUT_MILLIS = 500;
+
+    public StegocryptoHardware() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        checkBTState();
     }
 
     /**
@@ -80,7 +76,6 @@ public class StegocryptoHardware {
             Log.i(TAG, "Successfully created Bluetooth socket");
         } catch (IOException e) {
             Log.e(TAG, "Error creating Bluetooth socket: " + e.getMessage());
-            Toast.makeText(baseContext, "Socket creation failed", Toast.LENGTH_SHORT);
         }
 
         stegocryptoProtocol = new StegocryptoDataProtocol(btSocket);
@@ -88,34 +83,100 @@ public class StegocryptoHardware {
         Log.i(TAG, "Connected to Bluetooth");
     }
 
-    public void sendToHardware(String msg) {
-        //mConnectedThread.write(msg);
+    public void selectOption(OPT option) {
+        stegocryptoProtocol.writeOption(option);
+    }
+
+    public boolean sendToHardware(String msg) {
+        return sendToHardware(msg.getBytes());
+    }
+
+    public boolean sendToHardware(byte[] msg) {
+        Log.v(TAG, "Trying to send message to hardware (" + msg.length + " bytes)...");
+
+        /* Initial handshake: Send S */
+        stegocryptoProtocol.write("S");
+
+        /* Receive ACK */
+        byte[] data = stegocryptoProtocol.read(1, DEFAULT_TIMEOUT_MILLIS);
+        if (data == null || data[0] != 'R') {
+            Log.e(TAG, "Error: Incorrect ACK on initial handshake");
+            return false;
+        }
+
+        /* Send length of length string */
+        String length = Integer.toString(msg.length);
+        String lengthOfLength = Integer.toString(length.length());
+        if (lengthOfLength.length() > 1) {
+            Log.e(TAG, "Error. Send limit size exceeded");
+            return false;
+        }
+        stegocryptoProtocol.write(lengthOfLength);
+
+        /* Receive ACK */
+        data = stegocryptoProtocol.read(1, DEFAULT_TIMEOUT_MILLIS);
+        if (data == null ||data[0] != 'R') {
+            Log.e(TAG, "Error: Incorrect ACK on size of length size");
+            return false;
+        }
+
+        /* Send length */
+        stegocryptoProtocol.write(length);
+
+        /* Receive ACK */
+        data = stegocryptoProtocol.read(1, DEFAULT_TIMEOUT_MILLIS);
+        if (data == null ||data[0] != 'R') {
+            Log.e(TAG, "Error: Incorrect ACK on length size");
+            return false;
+        }
+
+        /* Send message */
         stegocryptoProtocol.write(msg);
         try { Thread.sleep(1); } catch (Exception e) {};
+
+        return true;
     }
 
-    public String receiveFromHardware(int length) {
-        byte[] data = stegocryptoProtocol.read(length);
-        return new String(data, 0, data.length);
+    public byte[] receiveFromHardware() {
+        return receiveFromHardware(DEFAULT_TIMEOUT_MILLIS);
     }
 
+    public byte[] receiveFromHardware(int timeout) {
+        Log.v(TAG, "Trying to recv message from hardware...");
 
-    /**
-     * Checks that the Android device Bluetooth is available and prompts to be turned on if off
-     */
-    private void checkBTState() {
-        if (btAdapter == null) {
-            Toast.makeText(baseContext, "Device does not support bluetooth", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Device doesn't support Bluetooth???");
-        } else {
-            if (btAdapter.isEnabled()) {
-                Log.v(TAG, "BT Device is enabled");
-            } else {
-                Log.v(TAG, "Requesting enable...");
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                activity.startActivityForResult(enableBtIntent, 1);
-            }
+        /* Initial handshake: Send S */
+        byte[] data = stegocryptoProtocol.read(1, timeout);
+        if (data == null || data[0] != 'S') {
+            Log.e(TAG, "Error: Incorrect ACK on length size");
+            return null;
         }
+
+        /* Initial handshake: Send R */
+        stegocryptoProtocol.write("R");
+
+        /* Receive length of length string */
+        data = stegocryptoProtocol.read(1, timeout);
+        if (data == null)
+            return null;
+
+        int lengthOfLength = Integer.valueOf(new String(data, 0, data.length));
+
+        /* Send ACK: R */
+        stegocryptoProtocol.write("R");
+
+        /* Receive length of data */
+        data = stegocryptoProtocol.read(lengthOfLength, timeout);
+        if (data == null)
+            return null;
+
+        int datalength = Integer.valueOf(new String(data, 0, data.length));
+
+        /* Send ACK: R */
+        stegocryptoProtocol.write("R");
+
+        /* Receive data */
+        data = stegocryptoProtocol.read(datalength, timeout);
+        return data;
     }
 
     private class StegocryptoDataProtocol {
@@ -124,7 +185,7 @@ public class StegocryptoHardware {
 
         /* These parameters throttle the sending rate to prevent overwhelming the DE2's lousy buffering rate */
         private static final int BUFFER_SIZE = 16;
-        private static final int SLEEP_TIME = 250; /* milliseconds */
+        private static final int SLEEP_TIME = 75; /* milliseconds */
 
         public StegocryptoDataProtocol(BluetoothSocket socket) {
             InputStream tmpIn = null;
@@ -173,47 +234,70 @@ public class StegocryptoHardware {
                 /* Write bytes over BT connection via outstream */
                 /* It seems that a rate of 8 bytes then a sleep prevents us from overloading poor DE2 */
                 while (offset < msgBuffer.length) {
+                    if (offset % 500 == 0) {
+                        Log.v(TAG, "Sent " + offset + "/" + msgBuffer.length);
+                    }
+
                     mmOutStream.write(msgBuffer, offset, (offset + BUFFER_SIZE < msgBuffer.length ? BUFFER_SIZE : msgBuffer.length - offset));
                     Thread.sleep(SLEEP_TIME);
                     offset += BUFFER_SIZE;
                 }
                 mmOutStream.flush();
 
-                Log.i(TAG, "Sent message!");
+                Log.v(TAG, "Sent " + msgBuffer.length + " bytes: " + new String(msgBuffer, 0, msgBuffer.length));
             } catch (IOException e) {
-                Toast.makeText(baseContext, "Connection Failure", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Bluetooth connection failure on write");
             } catch (InterruptedException e) {
                 Log.e(TAG, "Interrupted exception: " + e.getMessage());
             }
         }
 
-        public byte[] read(int numBytes) {
+        public void writeOption(OPT option) {
+            try {
+                switch (option) {
+                    case OPT_ENCRYPT:
+                        mmOutStream.write('E');
+                        mmOutStream.flush();
+                        break;
+                    case OPT_DECRYPT:
+                        mmOutStream.write('D');
+                        mmOutStream.flush();
+                        break;
+                    default:
+                        Log.e(TAG, "Unknown enum");
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Bluetooth connection failure on write");
+            }
+        }
+
+        public byte[] read(int numBytes, int timeout) {
             byte[] buffer = new byte[numBytes];
 
             int bytes = 0;
 
             while (bytes < numBytes) {
-            /* Keep looping to listen for received messages */
                 try {
-                /* read bytes from input buffer */
+                    /* Keep looping to listen for received messages */
+                    Long time = System.currentTimeMillis();
+                    Long curTime = time;
+                    while (mmInStream.available() < 1 && curTime - time < timeout) {
+                        try { Thread.sleep(500); } catch(Exception e) {}
+                        curTime = System.currentTimeMillis();
+                    }
+
+                    /* Check if we timed out */
+                    if (mmInStream.available() < 1) {
+                        Log.e("Read Message", "Connection timed out, stopping operation");
+                        return null;
+                    }
+
+                    /* read bytes from input buffer */
                     bytes += mmInStream.read(buffer, bytes, numBytes - bytes);
-                    Log.e("Read Message", "Read " + Integer.toString(bytes) + "bytes");
+                    Log.v("Read Message", "Read " + Integer.toString(bytes) + "bytes");
                 } catch (IOException e) {}
             }
             return buffer;
-        }
-    }
-
-    private class BroadcastHandler extends Handler {
-
-        public void handleMessage(android.os.Message msg) {
-            /* Check if this message is what we want */
-            if (msg.what == handlerState) {
-                /* msg.arg1 = bytes from connectThread */
-                String readMessage = (String) msg.obj;
-                Log.e(TAG, "Received BTMSG " + readMessage);
-            }
         }
     }
 }
