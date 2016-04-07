@@ -330,6 +330,9 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
             bluetooth.init();
 
+            Log.i("Bluetooth", "Selecting encryption: ");
+            bluetooth.selectOption(StegocryptoHardware.OPT.OPT_ENCRYPT);
+
             Log.i("Bluetooth", "Sending text data: " + bytes[0]);
             bluetooth.sendToHardware(bytes[0]);
 

@@ -30,6 +30,9 @@ public class StegocryptoHardware {
     private BluetoothSocket btSocket = null;
     private StegocryptoDataProtocol stegocryptoProtocol;
 
+    /* Enum declarations */
+    public enum OPT {OPT_ENCRYPT, OPT_DECRYPT};
+
     public StegocryptoHardware() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
     }
@@ -75,6 +78,10 @@ public class StegocryptoHardware {
         stegocryptoProtocol = new StegocryptoDataProtocol(btSocket);
 
         Log.i(TAG, "Connected to Bluetooth");
+    }
+
+    public void selectOption(OPT option) {
+        stegocryptoProtocol.writeOption(option);
     }
 
     public boolean sendToHardware(String msg) {
@@ -229,6 +236,25 @@ public class StegocryptoHardware {
                 Log.e(TAG, "Bluetooth connection failure on write");
             } catch (InterruptedException e) {
                 Log.e(TAG, "Interrupted exception: " + e.getMessage());
+            }
+        }
+
+        public void writeOption(OPT option) {
+            try {
+                switch (option) {
+                    case OPT_ENCRYPT:
+                        mmOutStream.write('E');
+                        mmOutStream.flush();
+                        break;
+                    case OPT_DECRYPT:
+                        mmOutStream.write('D');
+                        mmOutStream.flush();
+                        break;
+                    default:
+                        Log.e(TAG, "Unknown enum");
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Bluetooth connection failure on write");
             }
         }
 
