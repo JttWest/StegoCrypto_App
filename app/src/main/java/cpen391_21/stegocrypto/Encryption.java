@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -108,15 +109,22 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 params.put("fromUserName", Uri.encode(from_username));
                 params.put("toUserName", Uri.encode(toUsername.getText().toString()));
 
+
                 // grab the current selected bitmap and convert it to base64 string
                 Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
                 Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
 
-                ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
-                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
-                String imageBase64 = Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
+                // grab the image from local storage now instead
+                String root = Environment.getExternalStorageDirectory().toString();
+                File imgFile = new  File(root + "/stegoCrypto1.bmp");
+                if(imgFile.exists()) {
+                    Bitmap encImgBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                    ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
+                    encImgBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
+                    String imageBase64 = Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
 
-                params.put("data", imageBase64);
+                    params.put("data", imageBase64);
+                }
 
                 DataTransferRequests dataTransferRequest = new DataTransferRequests(this);
                 dataTransferRequest.sendDataAsyncTask(params);
@@ -183,9 +191,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 } catch (Exception e) {
                     Log.e("Encryption", "Could not convert bitmap");
                 }
-
-
-
 
 
                 break;
