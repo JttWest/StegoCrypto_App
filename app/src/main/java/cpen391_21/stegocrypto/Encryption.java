@@ -34,7 +34,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 
-import cpen391_21.stegocrypto.Bluetooth.BluetoothDataTransfer;
+import cpen391_21.stegocrypto.StegocryptoHardware.StegocryptoHardware;
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
 import cpen391_21.stegocrypto.User.UserLocalStore;
 import cpen391_21.stegocrypto.Utility.ImageUtility;
@@ -47,7 +47,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
     Uri cameraFileUri;
 
-    private BluetoothDataTransfer bluetooth;
+    private StegocryptoHardware bluetooth;
 
     final private static int SELECT_LOCATION_REQUEST = 1;
     final private static int PICK_IMAGE_REQUEST = 2;
@@ -80,7 +80,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         cameraBtn.setOnClickListener(this);
         drawBtn.setOnClickListener(this);
 
-        bluetooth = new BluetoothDataTransfer(this, this.getBaseContext());
+        bluetooth = new StegocryptoHardware(this, this.getBaseContext());
     }
 
     @Override
@@ -141,7 +141,14 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     Log.v("StegoCrpyto-image", "Unable to save image");
                 }*/
                 bluetooth.init();
-                bluetooth.sendToHardware("Hello\n");
+                dataET = (EditText) findViewById(R.id.data_for_enc);
+                String data = dataET.getText().toString();
+                Log.i("Bluetooth", "Sending: " + data);
+                bluetooth.sendToHardware(data);
+                String ret = bluetooth.receiveFromHardware(data.length());
+                Log.i("Bluetooth", "Received: " + ret);
+
+                try { Thread.sleep(1000); } catch (Exception e) {};
                 bluetooth.fini();
 
                 break;
