@@ -1,15 +1,22 @@
 package cpen391_21.stegocrypto;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -41,6 +48,48 @@ public class HistoryActivity extends AppCompatActivity {
         ListView historyListView = (ListView) findViewById(R.id.historyList);
 
         historyListView.setAdapter(arrayAdapter);
+
+        historyListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DataTransferHistoryItem historyItem = historyArrayList.get(position);
+                String packageID = historyItem.dataPackageID;
+
+
+                AlertDialog.Builder adb = new AlertDialog.Builder(HistoryActivity.this);
+                adb.setTitle("Image " + historyItem.action.toLowerCase() + historyItem.username);
+                //adb.setMessage(" selected Item is=" + parent.getItemAtPosition(position));
+                adb.setPositiveButton("Ok", null);
+
+                LinearLayout imageDialogLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.image_dialog, null);
+                ImageView dialogImage = (ImageView) imageDialogLayout.findViewById(R.id.dialogPopupImage);
+
+                DataTransferRequests dataTransferRequests = new DataTransferRequests(HistoryActivity.this);
+                dataTransferRequests.retrieveDataAsyncTask(HTTPCommands.SERVER_URL + "retrieveDataFromPackage?packageID=" +
+                        packageID, dialogImage);
+
+                adb.setView(imageDialogLayout);
+                adb.show();
+
+                /*
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(HistoryActivity.this);
+                LinearLayout imageDialogView = (LinearLayout) getLayoutInflater().inflate(R.layout.image_dialog, null);
+                ImageView dialogImage = (ImageView) imageDialogView.findViewById(R.id.dialogPopupImage);
+
+                dialogBuilder.setView(imageDialogView);
+
+
+                DataTransferRequests dataTransferRequests = new DataTransferRequests(getApplicationContext());
+                dataTransferRequests.retrieveDataAsyncTask(HTTPCommands.SERVER_URL + "retrieveDataFromPackage?packageID=" +
+                        packageID, dialogImage);
+
+                AlertDialog imageDialog = dialogBuilder.create();
+                imageDialog.show();*/
+                }
+            }
+
+            );
+
         /*
         DataTransferHistoryItem item = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
         DataTransferHistoryItem item1 = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
@@ -52,19 +101,17 @@ public class HistoryActivity extends AppCompatActivity {
         */
 
 
-        //arrayAdapter.notifyDataSetChanged();
+            //arrayAdapter.notifyDataSetChanged();
 
-        // get ID of current user
-        SharedPreferences userSP = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME,
-                Context.MODE_PRIVATE);
-        String currentLoginUserName = userSP.getString("userName", "");
+            // get ID of current user
+            SharedPreferences userSP = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME,
+                    Context.MODE_PRIVATE);
+            String currentLoginUserName = userSP.getString("userName", "");
 
-        // populate ListView with data transfer history
-        DataTransferHistoryRequests getDataTransferHistory = new DataTransferHistoryRequests(this);
-        getDataTransferHistory.retrieveHistoryAsyncTask(HTTPCommands.SERVER_URL +
-                                                            "getDataTransferHistory?username=" + currentLoginUserName,
-                                                            historyArrayList, arrayAdapter, currentLoginUserName);
+            // populate ListView with data transfer history
+            DataTransferHistoryRequests getDataTransferHistory = new DataTransferHistoryRequests(this);
+            getDataTransferHistory.retrieveHistoryAsyncTask(HTTPCommands.SERVER_URL +
+                            "getDataTransferHistory?username=" + currentLoginUserName,
+                    historyArrayList, arrayAdapter, currentLoginUserName);
+        }
     }
-
-
-}

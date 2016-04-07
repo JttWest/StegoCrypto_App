@@ -97,7 +97,7 @@ public class DataTransferRequests {
 
                 imageView.setImageBitmap(bitmap);
             } catch (JSONException e) {
-                Toast.makeText(context, "Unable to retrieve image from server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Unable to retrive image from server", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
 
