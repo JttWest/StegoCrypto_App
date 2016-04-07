@@ -80,7 +80,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         cameraBtn.setOnClickListener(this);
         drawBtn.setOnClickListener(this);
 
-        bluetooth = new StegocryptoHardware(this, this.getBaseContext());
+        bluetooth = new StegocryptoHardware(this);
     }
 
     @Override
@@ -145,8 +145,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 String data = dataET.getText().toString();
                 Log.i("Bluetooth", "Sending: " + data);
                 bluetooth.sendToHardware(data);
-                String ret = bluetooth.receiveFromHardware(data.length());
-                Log.i("Bluetooth", "Received: " + ret);
+                byte[] ret = bluetooth.receiveFromHardware();
+                Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
 
                 try { Thread.sleep(1000); } catch (Exception e) {};
                 bluetooth.fini();

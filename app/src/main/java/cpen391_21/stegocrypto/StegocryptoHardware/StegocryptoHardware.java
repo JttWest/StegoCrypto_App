@@ -83,14 +83,86 @@ public class StegocryptoHardware {
         Log.i(TAG, "Connected to Bluetooth");
     }
 
-    public void sendToHardware(String msg) {
+    public boolean sendToHardware(String msg) {
+        Log.v(TAG, "Trying to send message <" + msg + "> to hardware...");
+
+        Toast.makeText(activity.getBaseContext(), "Sending data to Stegocrypto Hardware...", Toast.LENGTH_SHORT).show();
+
+        /* Initial handshake: Send S */
+        stegocryptoProtocol.write("S");
+
+        /* Receive ACK */
+        byte[] data = stegocryptoProtocol.read(1);
+        if (data[0] != 'R') {
+            Log.e(TAG, "Error: Incorrect ACK on initial handshake");
+            return false;
+        }
+
+        /* Send length of length string */
+        String length = Integer.toString(msg.length());
+        String lengthOfLength = Integer.toString(length.length());
+        if (lengthOfLength.length() > 1) {
+            Log.e(TAG, "Error. Send limit size exceeded");
+            return false;
+        }
+        stegocryptoProtocol.write(lengthOfLength);
+
+        /* Receive ACK */
+        data = stegocryptoProtocol.read(1);
+        if (data[0] != 'R') {
+            Log.e(TAG, "Error: Incorrect ACK on size of length size");
+            return false;
+        }
+
+        /* Send length */
+        stegocryptoProtocol.write(length);
+
+        /* Receive ACK */
+        data = stegocryptoProtocol.read(1);
+        if (data[0] != 'R') {
+            Log.e(TAG, "Error: Incorrect ACK on length size");
+            return false;
+        }
+
+        /* Send message */
         stegocryptoProtocol.write(msg);
         try { Thread.sleep(1); } catch (Exception e) {};
+
+        return true;
     }
 
-    public String receiveFromHardware(int length) {
-        byte[] data = stegocryptoProtocol.read(length);
-        return new String(data, 0, data.length);
+    public byte[] receiveFromHardware() {
+        Log.v(TAG, "Trying to recv message from hardware...");
+
+        Toast.makeText(activity.getBaseContext(), "Receiving data to Stegocrypto Hardware...", Toast.LENGTH_SHORT).show();
+
+        /* Initial handshake: Send S */
+        byte[] data = stegocryptoProtocol.read(1);
+        if (data[0] != 'S') {
+            Log.e(TAG, "Error: Incorrect ACK on length size");
+            return new byte[0];
+        }
+
+        /* Initial handshake: Send R */
+        stegocryptoProtocol.write("R");
+
+        /* Receive length of length string */
+        data = stegocryptoProtocol.read(1);
+        int lengthOfLength = Integer.valueOf(new String(data, 0, data.length));
+
+        /* Send ACK: R */
+        stegocryptoProtocol.write("R");
+
+        /* Receive length of data */
+        data = stegocryptoProtocol.read(lengthOfLength);
+        int datalength = Integer.valueOf(new String(data, 0, data.length));
+
+        /* Send ACK: R */
+        stegocryptoProtocol.write("R");
+
+        /* Receive data */
+        data = stegocryptoProtocol.read(datalength);
+        return data;
     }
 
 
@@ -173,7 +245,7 @@ public class StegocryptoHardware {
                 }
                 mmOutStream.flush();
 
-                Log.i(TAG, "Sent message!");
+                Log.v(TAG, "Sent " + msgBuffer.length + " bytes: " + new String(msgBuffer, 0, msgBuffer.length));
             } catch (IOException e) {
                 Toast.makeText(activity.getBaseContext(), "Connection Failure", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Bluetooth connection failure on write");
@@ -192,7 +264,7 @@ public class StegocryptoHardware {
                 try {
                 /* read bytes from input buffer */
                     bytes += mmInStream.read(buffer, bytes, numBytes - bytes);
-                    Log.e("Read Message", "Read " + Integer.toString(bytes) + "bytes");
+                    Log.v("Read Message", "Read " + Integer.toString(bytes) + "bytes");
                 } catch (IOException e) {}
             }
             return buffer;
