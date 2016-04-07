@@ -38,20 +38,19 @@ public class ImageUtility {
     /**
      * Android Bitmap Object to Window's v3 24bit Bmp Format File
      * @param orgBitmap
-     * @param filePath
      * @return file saved result
      */
-    public static ByteBuffer save(Bitmap orgBitmap, String filePath) throws IOException {
+    public static ByteBuffer bitmapToByteBuffer(Bitmap orgBitmap) throws IOException {
         long start = System.currentTimeMillis();
         if(orgBitmap == null){
             Log.e("ImageUtility", "orgBitmap was NULL");
             return null;
         }
-
+/*
         if(filePath == null){
             Log.e("ImageUtility", "filePath was NULL");
             return null;
-        }
+        }*/
 
         boolean isSaveSuccess = true;
 

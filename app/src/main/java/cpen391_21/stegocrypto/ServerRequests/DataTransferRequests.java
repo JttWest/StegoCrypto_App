@@ -35,11 +35,11 @@ public class DataTransferRequests {
         new SendDataAsyncTask().execute(params);
     }
 
-    public void retrieveDataAsyncTask(String url, ImageView imageView){
+    public void retrieveDataAsyncTask(String url, ImageView imageView, byte[] resultBuffer){
         progressDialog.setTitle("Retrieving data from server...");
         progressDialog.setMessage("Please wait...");
         progressDialog.show();
-        new RetrieveDataAsyncTask(imageView).execute(url);
+        new RetrieveDataAsyncTask(imageView, resultBuffer).execute(url);
     }
 
     public class SendDataAsyncTask extends AsyncTask<HashMap<String, String>, Void, String> {
@@ -75,8 +75,10 @@ public class DataTransferRequests {
 
     public class RetrieveDataAsyncTask extends AsyncTask<String, Void, String> {
         ImageView imageView;
+        byte[] resultBuffer;
 
-        public RetrieveDataAsyncTask(ImageView imageView){
+        public RetrieveDataAsyncTask(ImageView imageView, byte[] resultBuffer){
+            this.resultBuffer = resultBuffer;
             this.imageView = imageView;
         }
 
@@ -93,6 +95,9 @@ public class DataTransferRequests {
                 String bae64Image = jsonData.getString("data");
 
                 byte[] decodedBytes = Base64.decode(bae64Image, Base64.DEFAULT);
+
+                resultBuffer = decodedBytes;
+
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, Base64.DEFAULT, decodedBytes.length);
 
                 imageView.setImageBitmap(bitmap);

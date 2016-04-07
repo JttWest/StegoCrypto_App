@@ -34,6 +34,7 @@ import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class HistoryActivity extends AppCompatActivity {
     private DataTransferHistoryArrayAdapter arrayAdapter;
+    private byte[] resultByteBuffer;
 
     // need to populate this with call to server at run time
     private ArrayList<DataTransferHistoryItem> historyArrayList = new ArrayList<DataTransferHistoryItem>();
@@ -66,7 +67,7 @@ public class HistoryActivity extends AppCompatActivity {
 
                 DataTransferRequests dataTransferRequests = new DataTransferRequests(HistoryActivity.this);
                 dataTransferRequests.retrieveDataAsyncTask(HTTPCommands.SERVER_URL + "retrieveDataFromPackage?packageID=" +
-                        packageID, dialogImage);
+                        packageID, dialogImage, resultByteBuffer);
 
                 adb.setView(imageDialogLayout);
                 adb.show();

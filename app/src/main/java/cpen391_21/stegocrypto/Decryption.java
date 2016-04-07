@@ -4,10 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,18 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
 import cpen391_21.stegocrypto.ServerRequests.HTTPCommands;
@@ -48,6 +41,7 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
     private byte[] stegoTaskResult = null;
     private boolean stegoTaskDone = false;
 
+    private byte[] resultByteBuffer;
     /* Request enums */
     final private static int PICK_IMAGE_REQUEST = 1;
 
@@ -114,23 +108,29 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                 imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] bytes = stream.toByteArray();
 
-               // Bitmap bitmap = ((BitmapDrawable)imageDisplayIV.getDrawable()).getBitmap();
-               // Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
-               // resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 50);
+                Log.d("StegoByte",  Arrays.toString(bytes));
+
+                Bitmap bitmap = ((BitmapDrawable)imageDisplayIV.getDrawable()).getBitmap();
+                Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
+                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 50);
                 try {
-                    //ByteBuffer imagedatabb = ImageUtility.save(resizedBitmap, "current.bmp");
+                    ByteBuffer imagedatabb = ImageUtility.bitmapToByteBuffer(resizedBitmap);
+
+
 
                     if (false) {
-                    //if (imagedatabb == null) {
-                        Log.e("Decryption", "Bitmap was NULL!");
-                    } else {
-                        //byte[] imgbyte = imagedatabb.array();
-                        //Log.e("Decryption", "Bitmap has size " + imgbyte.length + " bytes");
+                        if (imagedatabb == null) {
+                            Log.e("Decryption", "Bitmap was NULL!");
+                        } else {
+                            byte[] imgbyte = imagedatabb.array();
+                            Log.e("Decryption", "Bitmap has size " + imgbyte.length + " bytes");
 
                         /* Send the data to the hardware */
-                        //new StegoCryptoDecrypt().execute(imgbyte);
-                        new StegoCryptoDecrypt().execute(bytes);
+                            new StegoCryptoDecrypt().execute(resultByteBuffer);
+                            //new StegoCryptoDecrypt().execute(bytes);
+                        }
                     }
+
                 } catch (Exception e) {
                     Log.e("Decryption", "Could not convert bitmap");
                 }
@@ -180,7 +180,7 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                             "?packageID=" + packageID;
 
                     DataTransferRequests dataTransferRequests = new DataTransferRequests(this);
-                    dataTransferRequests.retrieveDataAsyncTask(requestURL, imageDisplayIV);
+                    dataTransferRequests.retrieveDataAsyncTask(requestURL, imageDisplayIV, resultByteBuffer);
                 } catch (JSONException e) {e.printStackTrace();}
             }
         }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -23,10 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +36,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.model.LatLng;
 
 import cpen391_21.stegocrypto.StegocryptoHardware.StegocryptoHardware;
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
@@ -112,8 +110,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
 
                 // grab the current selected bitmap and convert it to base64 string
-                Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
-                Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
+                //Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
+                //Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
 
                 // grab the image from local storage now instead
                 String root = Environment.getExternalStorageDirectory().toString();
@@ -129,7 +127,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 if (stegoTaskResult != null) {
                     String imageBase64 = Base64.encodeToString(stegoTaskResult, Base64.DEFAULT);
                     params.put("data", imageBase64);
+
+                    Log.d("StegoByte", Arrays.toString(stegoTaskResult));
                 }
+
 
                 DataTransferRequests dataTransferRequest = new DataTransferRequests(this);
                 dataTransferRequest.sendDataAsyncTask(params);
@@ -158,11 +159,11 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 String longitude = latAndLongArray[1]; //"-123.251";
 
                 /* Get the image data */
-                bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
-                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
-                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 50);
+                Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
+                Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
+                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 25);
                 try {
-                    ByteBuffer imagedatabb = ImageUtility.save(resizedBitmap, "current.bmp");
+                    ByteBuffer imagedatabb = ImageUtility.bitmapToByteBuffer(resizedBitmap);
 
                     if (imagedatabb == null) {
                         Log.e("Encryption", "Bitmap was NULL!");

@@ -65,7 +65,7 @@ public class DrawingActivity extends Activity implements OnClickListener {
         newBtn = (ImageButton)findViewById(R.id.new_btn);
         newBtn.setOnClickListener(this);
 
-        //save button
+        //bitmapToByteBuffer button
         saveBtn = (ImageButton)findViewById(R.id.save_btn);
         saveBtn.setOnClickListener(this);
     }
@@ -206,15 +206,15 @@ public class DrawingActivity extends Activity implements OnClickListener {
 
         /*
         else if(view.getId()==R.id.save_btn){
-            //save drawing
+            //bitmapToByteBuffer drawing
             AlertDialog.Builder saveDialog = new AlertDialog.Builder(this);
             saveDialog.setTitle("Save drawing");
             saveDialog.setMessage("Save drawing to device Gallery?");
             saveDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
                 public void onClick(DialogInterface dialog, int which){
-                    //save drawing
+                    //bitmapToByteBuffer drawing
                     drawView.setDrawingCacheEnabled(true);
-                    //attempt to save
+                    //attempt to bitmapToByteBuffer
                     String imgSaved = MediaStore.Images.Media.insertImage(
                             getContentResolver(), drawView.getDrawingCache(),
                             UUID.randomUUID().toString()+".png", "StegoCrypto drawing");
