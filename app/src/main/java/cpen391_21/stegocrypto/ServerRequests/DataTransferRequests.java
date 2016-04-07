@@ -67,7 +67,7 @@ public class DataTransferRequests {
             if (result.equals("Data sent sucessfully.")) {
                 toast = Toast.makeText(context, "Data has been sent.", Toast.LENGTH_SHORT);
             } else {
-                toast = Toast.makeText(context, "Unable to sent data.", Toast.LENGTH_SHORT);
+                toast = Toast.makeText(context, "Unable to send data.", Toast.LENGTH_SHORT);
             }
 
             toast.show();

@@ -112,7 +112,7 @@ public class MyGcmListenerService extends GcmListenerService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.stegography_logo)
                 .setContentTitle("StegoCrpyto")
-                .setContentText("You received an encryptic image from " + msgFromUsername)
+                .setContentText("You received an encrypted image from " + msgFromUsername)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
