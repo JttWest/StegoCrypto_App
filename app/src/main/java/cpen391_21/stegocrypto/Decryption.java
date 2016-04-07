@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -250,6 +252,18 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
 
             try { Thread.sleep(1000); } catch (Exception e) {};
             bluetooth.fini();
+
+            /* Save the data */
+            /* Save the image first */
+            // fetching the root directory
+            String rootDir = Environment.getExternalStorageDirectory().toString();
+            // Creating folders for Image
+            String imageFolderPath = rootDir + "/StegoCryptoImages/";
+            File imagesFolder = new File(imageFolderPath);
+            imagesFolder.mkdirs(); // make directory if if doesn't exist
+            // Generating file name
+            String imageName = "stegoCryptoEncrypted.bmp";
+            ImageUtility.writeToFile(imageFolderPath + imageName, bytes[0]);
 
             return ret;
         }

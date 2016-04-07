@@ -173,6 +173,17 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                         byte[] imgbyte = imagedatabb.array();
                         Log.e("Encryption", "Bitmap has size " + imgbyte.length + " bytes");
 
+                        /* Save the image first */
+                        // fetching the root directory
+                        String rootDir = Environment.getExternalStorageDirectory().toString();
+                        // Creating folders for Image
+                        String imageFolderPath = rootDir + "/StegoCryptoImages";
+                        File imagesFolder = new File(imageFolderPath);
+                        imagesFolder.mkdirs(); // make directory if if doesn't exist
+                        // Generating file name
+                        String imageName = "/stegoCryptoUnncrypted.bmp";
+                        ImageUtility.writeToFile(imageFolderPath + imageName, imgbyte);
+
                         /* Send the data to the hardware */
                         new StegoCryptoEncrypt().execute(data.getBytes(), longitude.getBytes(), latitude.getBytes(), imgbyte);
                     }
@@ -413,8 +424,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             stegoTaskResult = result;
 
             if (result != null) {
-                String rootDir = Environment.getExternalStorageDirectory().toString();
-                ImageUtility.writeToFile(rootDir + "/images/stegoCrypto1.bmp", result);
                 Toast.makeText(getBaseContext(), "Success", Toast.LENGTH_LONG).show();
             }
 
