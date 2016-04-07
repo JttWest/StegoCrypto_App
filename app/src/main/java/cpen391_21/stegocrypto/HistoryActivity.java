@@ -34,7 +34,7 @@ import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class HistoryActivity extends AppCompatActivity {
     private DataTransferHistoryArrayAdapter arrayAdapter;
-    private byte[] resultByteBuffer;
+    private Decryption.byteBufContainer resultByteBuffer;
 
     // need to populate this with call to server at run time
     private ArrayList<DataTransferHistoryItem> historyArrayList = new ArrayList<DataTransferHistoryItem>();

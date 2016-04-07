@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import cpen391_21.stegocrypto.Decryption;
 import cpen391_21.stegocrypto.User.User;
 
 public class DataTransferRequests {
@@ -35,7 +36,7 @@ public class DataTransferRequests {
         new SendDataAsyncTask().execute(params);
     }
 
-    public void retrieveDataAsyncTask(String url, ImageView imageView, byte[] resultBuffer){
+    public void retrieveDataAsyncTask(String url, ImageView imageView, Decryption.byteBufContainer resultBuffer){
         progressDialog.setTitle("Retrieving data from server...");
         progressDialog.setMessage("Please wait...");
         progressDialog.show();
@@ -75,9 +76,9 @@ public class DataTransferRequests {
 
     public class RetrieveDataAsyncTask extends AsyncTask<String, Void, String> {
         ImageView imageView;
-        byte[] resultBuffer;
+        Decryption.byteBufContainer resultBuffer;
 
-        public RetrieveDataAsyncTask(ImageView imageView, byte[] resultBuffer){
+        public RetrieveDataAsyncTask(ImageView imageView, Decryption.byteBufContainer resultBuffer){
             this.resultBuffer = resultBuffer;
             this.imageView = imageView;
         }
@@ -96,7 +97,7 @@ public class DataTransferRequests {
 
                 byte[] decodedBytes = Base64.decode(bae64Image, Base64.DEFAULT);
 
-                resultBuffer = decodedBytes;
+                resultBuffer.buf = decodedBytes;
 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, Base64.DEFAULT, decodedBytes.length);
 
