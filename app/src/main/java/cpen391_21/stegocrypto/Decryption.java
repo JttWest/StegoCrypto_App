@@ -113,7 +113,7 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
 
                 Bitmap bitmap = ((BitmapDrawable)imageDisplayIV.getDrawable()).getBitmap();
                 Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
-                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 50);
+                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 100);
                 try {
                     //ByteBuffer imagedatabb = ImageUtility.bitmapToByteBuffer(resizedBitmap);
 
