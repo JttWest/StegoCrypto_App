@@ -117,13 +117,17 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
                 // grab the image from local storage now instead
                 String root = Environment.getExternalStorageDirectory().toString();
-                File imgFile = new  File(root + "/stegoCrypto1.bmp");
-                if(imgFile.exists()) {
-                    Bitmap encImgBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                    ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
-                    encImgBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
-                    String imageBase64 = Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
-
+//                File imgFile = new  File(root + "/stegoCrypto1.bmp");
+//                if(imgFile.exists()) {
+//                    Bitmap encImgBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+//                    ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
+//                    encImgBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
+//                    String imageBase64 = Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
+//
+//                    params.put("data", imageBase64);
+//                }
+                if (stegoTaskResult != null) {
+                    String imageBase64 = Base64.encodeToString(stegoTaskResult, Base64.DEFAULT);
                     params.put("data", imageBase64);
                 }
 
@@ -135,28 +139,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 startActivity(backToMenu);
                 break;
             case R.id.enc_data:
-                /*
-                try {
-                    String rootDir = Environment.getExternalStorageDirectory().toString();
-
-
-                    boolean status = ImageUtility.save(resizedBitmap, rootDir + "/StegoCrypto.bmp");
-
-                    //TODO add bluetooth
-
-                    // BLUETOOTH INTEGRATION HERE
-                    // retrieve currrent selected image
-                    // convert Bitmap to BMP image and retrieve the ByteBuffer
-                    // send to Bluetooth
-                    // update current selected image with encrypted version
-
-                    if (!status)
-                        Log.v("StegoCrpyto-image", "Unable to save image");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.v("StegoCrpyto-image", "Unable to save image");
-                }*/
-
                 /* Get the data */
                 dataET = (EditText) findViewById(R.id.data_for_enc);
                 String data = dataET.getText().toString();
