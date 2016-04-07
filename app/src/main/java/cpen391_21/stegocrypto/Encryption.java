@@ -345,27 +345,33 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
             Log.i("Bluetooth", "Selecting encryption: ");
             bluetooth.selectOption(StegocryptoHardware.OPT.OPT_ENCRYPT);
+            publishProgress(1);
 
             Log.i("Bluetooth", "Sending text data: " + bytes[0]);
             bluetooth.sendToHardware(bytes[0]);
+            publishProgress(2);
 
             Log.i("Bluetooth", "Sending longitude data");
             bluetooth.sendToHardware(bytes[1]);
             Log.i("Bluetooth", "Done sending longitude data");
+            publishProgress(3);
 
             Log.i("Bluetooth", "Sending latitude data");
             bluetooth.sendToHardware(bytes[2]);
             Log.i("Bluetooth", "Done sending latitude data");
+            publishProgress(4);
 
             Log.i("Bluetooth", "Sending image data");
             bluetooth.sendToHardware(bytes[3]);
             Log.i("Bluetooth", "Done sending image data");
+            publishProgress(5);
 
             byte[] ret = bluetooth.receiveFromHardware(10000);
             if (ret != null) {
                 Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
                 totalSize = ret.length;
             }
+            publishProgress(6);
 
             try { Thread.sleep(1000); } catch (Exception e) {};
             bluetooth.fini();
@@ -378,9 +384,45 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             super.onPreExecute();
 
             /* Show progressDialog */
+            progressDialog.setTitle("Encrypting...");
             progressDialog.setMessage(getString(R.string.loadingEncryption));
+            progressDialog.setIndeterminate(false);
+            progressDialog.setMax(6);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
             progressDialog.setCancelable(false);
             progressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... args) {
+            super.onProgressUpdate();
+            progressDialog.setProgress(args[0]);
+            switch (args[0]) {
+                case 0:
+                    progressDialog.setMessage(getString(R.string.loadingEncryption));
+                    break;
+                case 1:
+                    progressDialog.setMessage("Initializing...");
+                    break;
+                case 2:
+                    progressDialog.setMessage("Sending text data...");
+                    break;
+                case 3:
+                    progressDialog.setMessage("Sending GPS data...");
+                    break;
+                case 4:
+                    progressDialog.setMessage("Sending GPS data...");
+                    break;
+                case 5:
+                    progressDialog.setMessage("Sending image data... (this might take a while)");
+                    break;
+                case 6:
+                    progressDialog.setMessage("Receiving image data... (this might take a while)");
+                    break;
+                default:
+                    break;
+            }
         }
 
         @Override
@@ -390,6 +432,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             if (result != null) {
                 String rootDir = Environment.getExternalStorageDirectory().toString();
                 ImageUtility.writeToFile(rootDir + "/stegoCrypto1.bmp", result);
+                Toast.makeText(getBaseContext(), "Success", Toast.LENGTH_LONG).show();
             }
 
             stegoTaskDone = true;
