@@ -82,7 +82,6 @@ public class DataTransferRequests {
 
         @Override
         protected String doInBackground(String... url) {
-            String test = url[0];
             String rawResponse = HTTPCommands.performGetCall(url[0]);
             return rawResponse;
         }
@@ -98,7 +97,7 @@ public class DataTransferRequests {
 
                 imageView.setImageBitmap(bitmap);
             } catch (JSONException e) {
-                Toast.makeText(context, "Unable to retrive image from server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Unable to retrieve image from server", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
 

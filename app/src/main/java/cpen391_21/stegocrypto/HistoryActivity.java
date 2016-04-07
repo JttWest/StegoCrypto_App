@@ -1,13 +1,70 @@
 package cpen391_21.stegocrypto;
 
+import android.app.ListActivity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import cpen391_21.stegocrypto.DataTransferHistory.DataTransferHistoryArrayAdapter;
+import cpen391_21.stegocrypto.DataTransferHistory.DataTransferHistoryItem;
+import cpen391_21.stegocrypto.ServerRequests.DataTransferHistoryRequests;
+import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
+import cpen391_21.stegocrypto.ServerRequests.HTTPCommands;
+import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class HistoryActivity extends AppCompatActivity {
+    private DataTransferHistoryArrayAdapter arrayAdapter;
+
+    // need to populate this with call to server at run time
+    private ArrayList<DataTransferHistoryItem> historyArrayList = new ArrayList<DataTransferHistoryItem>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+
+        arrayAdapter = new DataTransferHistoryArrayAdapter(this, android.R.layout.simple_list_item_1, historyArrayList);
+
+        ListView historyListView = (ListView) findViewById(R.id.historyList);
+
+        historyListView.setAdapter(arrayAdapter);
+        /*
+        DataTransferHistoryItem item = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
+        DataTransferHistoryItem item1 = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
+        DataTransferHistoryItem item2 = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
+
+        historyArrayList.add(item);
+        historyArrayList.add(item1);
+        historyArrayList.add(item2);
+        */
+
+
+        //arrayAdapter.notifyDataSetChanged();
+
+        // get ID of current user
+        SharedPreferences userSP = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME,
+                Context.MODE_PRIVATE);
+        String currentLoginUserName = userSP.getString("userName", "");
+
+        // populate ListView with data transfer history
+        DataTransferHistoryRequests getDataTransferHistory = new DataTransferHistoryRequests(this);
+        getDataTransferHistory.retrieveHistoryAsyncTask(HTTPCommands.SERVER_URL +
+                                                            "getDataTransferHistory?username=" + currentLoginUserName,
+                                                            historyArrayList, arrayAdapter, currentLoginUserName);
     }
+
+
 }

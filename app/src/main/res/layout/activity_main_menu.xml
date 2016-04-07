@@ -51,4 +51,11 @@
         android:text="Decrypt Data"
         android:layout_marginTop="15dip"/>
 
+    <Button android:id="@+id/historyBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Data Transfer History"
+        android:layout_marginTop="15dip"/>
+
+
 </LinearLayout>

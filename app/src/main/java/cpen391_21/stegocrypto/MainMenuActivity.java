@@ -13,7 +13,7 @@ import cpen391_21.stegocrypto.User.UserLocalStore;
 
 public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener{
     UserLocalStore userLocalStore;
-    Button goToLoginBtn, goToRegisterBtn, logoutBtn, goToSendDataBtn, goToDecryptBtn;
+    Button goToLoginBtn, goToRegisterBtn, logoutBtn, goToSendDataBtn, goToDecryptBtn, historyBtn;
     TextView displayName;
 
     @Override
@@ -28,6 +28,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         logoutBtn = (Button) findViewById(R.id.logoutBtn);
         goToSendDataBtn = (Button) findViewById(R.id.goToSendData);
         goToDecryptBtn = (Button) findViewById(R.id.goToDecrypt);
+        historyBtn = (Button) findViewById(R.id.historyBtn);
+
         displayName = (TextView) findViewById(R.id.displayName);
 
         goToLoginBtn.setOnClickListener(this);
@@ -35,6 +37,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         logoutBtn.setOnClickListener(this);
         goToSendDataBtn.setOnClickListener(this);
         goToDecryptBtn.setOnClickListener(this);
+        historyBtn.setOnClickListener(this);
     }
 
     @Override
@@ -61,6 +64,10 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             case R.id.goToDecrypt:
                 Intent decrypt = new Intent(getApplicationContext(), Decryption.class);
                 startActivity(decrypt);
+                break;
+            case R.id.historyBtn:
+                Intent history = new Intent(getApplicationContext(), HistoryActivity.class);
+                startActivity(history);
                 break;
         }
     }

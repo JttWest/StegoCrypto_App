@@ -46,4 +46,5 @@ public class UserLocalStore {
         User user = new User(userName, password, instanceIDToken);
         return user;
     }
+
 }
