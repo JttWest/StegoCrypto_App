@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -88,6 +90,7 @@ public class StegocryptoHardware {
 
     public void sendToHardware(String msg) {
         mConnectedThread.write(msg);
+        try { Thread.sleep(1); } catch (Exception e) {};
     }
 
     public String receiveFromHardware() {
@@ -115,8 +118,8 @@ public class StegocryptoHardware {
     }
 
     private class ConnectedThread extends Thread {
-        private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
+        private final BufferedInputStream mmInStream;
+        private final BufferedOutputStream mmOutStream;
 
 
         //creation of the connect thread
@@ -133,27 +136,28 @@ public class StegocryptoHardware {
                 Log.e(TAG, "Error getting input/output streams for socket: " + e.getMessage());
             }
 
-            mmInStream = tmpIn;
-            mmOutStream = tmpOut;
+            mmInStream = new BufferedInputStream(tmpIn);
+            mmOutStream = new BufferedOutputStream(tmpOut, 8);
         }
 
         public void run() {
             byte[] buffer = new byte[256];
-            StringBuilder read = new StringBuilder();
+
             int bytes = 0;
 
             // Keep looping to listen for received messages
             while (true) {
                 try {
-                    while (mmInStream.available() == 0)
-                        ; /* busywait */
+                    StringBuilder read = new StringBuilder();
 
-                    while (mmInStream.available() > 0) {
-                        bytes += mmInStream.read(buffer);            //read bytes from input buffer
+                    try { Thread.sleep(1); } catch (Exception e) {};
+
+                    //while (mmInStream.available() > 0) {
+                        /* read bytes from input buffer */
+                        bytes = mmInStream.read(buffer);
                         Log.e("Read Message", "Read " + Integer.toString(bytes) + "bytes");
                         read.append(new String(buffer, 0, bytes));
-                        try { Thread.sleep(1); } catch (Exception e) {};
-                    }
+                    //}
 
 
                     //String readMessage = new String(buffer, 0, bytes);
@@ -185,12 +189,22 @@ public class StegocryptoHardware {
          */
         public void write(byte[] msgBuffer) {
             try {
+                int offset = 0;
                 /* Write bytes over BT connection via outstream */
-                mmOutStream.write(msgBuffer);
+                /* It seems that a rate of 8 bytes then a sleep prevents us from overloading poor DE2 */
+                while (offset < msgBuffer.length) {
+                    mmOutStream.write(msgBuffer, offset, (offset + 16 < msgBuffer.length ? 16 : msgBuffer.length - offset));
+                    Thread.sleep(250);
+                    offset += 16;
+                }
+                //mmOutStream.flush();
+
                 Log.i(TAG, "Sent message!");
             } catch (IOException e) {
                 Toast.makeText(baseContext, "Connection Failure", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Bluetooth connection failure on write");
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Interrupted exception: " + e.getMessage());
             }
         }
     }
