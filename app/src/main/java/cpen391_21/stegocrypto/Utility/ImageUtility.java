@@ -174,6 +174,16 @@ public class ImageUtility {
         return isSaveSuccess;*/
     }
 
+    public static void writeToFile(String filePath, byte[] data) {
+        try {
+            FileOutputStream fos = new FileOutputStream(filePath);
+            fos.write(data);
+            fos.close();
+        } catch (IOException e) {
+            Log.e("ImageUtility", "Could not write to file: " + e.getMessage());
+        }
+    }
+
     /**
      * Write integer to little-endian
      * @param value

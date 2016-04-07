@@ -155,6 +155,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     data = "(no data)";
                 }
 
+                /* TODO: take values from edittext when GoogleMaps API works */
+                String longitude = "-123.251";
+                String latitude = "49.261";
+
                 /* Get the image data */
                 bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
                 resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
@@ -168,9 +172,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 //                        byte[] imgbyte = new byte[imagedatabb.remaining()];
 //                        imagedatabb.get(imgbyte, 0, imgbyte.length);
                         byte[] imgbyte = imagedatabb.array();
-
                         Log.e("Encryption", "Bitmap has size " + imgbyte.length + " bytes");
-                        new StegoCryptoEncrypt().execute(data.getBytes(), imgbyte);
+
+                        /* Send the data to the hardware */
+                        new StegoCryptoEncrypt().execute(data.getBytes(), longitude.getBytes(), latitude.getBytes(), imgbyte);
                     }
                 } catch (Exception e) {
                     Log.e("Encryption", "Could not convert bitmap");
@@ -311,6 +316,14 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
     private class StegoCryptoEncrypt extends AsyncTask<byte[], Integer, byte[]> {
 
+        /**
+         *
+         * @param bytes bytes[0]: text data
+         *              bytes[1]: longitude
+         *              bytes[2]: latitude
+         *              bytes[3]: image
+         * @return
+         */
         @Override
         protected byte[] doInBackground(byte[]... bytes) {
             long totalSize = 0;
@@ -320,9 +333,16 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             Log.i("Bluetooth", "Sending text data: " + bytes[0]);
             bluetooth.sendToHardware(bytes[0]);
 
-            Log.i("Bluetooth", "Sending image data");
+            Log.i("Bluetooth", "Sending longitude data");
             bluetooth.sendToHardware(bytes[1]);
+            Log.i("Bluetooth", "Done sending longitude data");
 
+            Log.i("Bluetooth", "Sending latitude data");
+            bluetooth.sendToHardware(bytes[2]);
+            Log.i("Bluetooth", "Done sending latitude data");
+
+            Log.i("Bluetooth", "Sending image data");
+            bluetooth.sendToHardware(bytes[3]);
             Log.i("Bluetooth", "Done sending image data");
 
             byte[] ret = bluetooth.receiveFromHardware();
@@ -348,6 +368,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         @Override
         protected void onPostExecute(byte[] result) {
             stegoTaskResult = result;
+
+            String rootDir = Environment.getExternalStorageDirectory().toString();
+            ImageUtility.writeToFile(rootDir + "/stegoCrypto1.bmp", result);
+
             stegoTaskDone = true;
             progressDialog.dismiss();
         }
