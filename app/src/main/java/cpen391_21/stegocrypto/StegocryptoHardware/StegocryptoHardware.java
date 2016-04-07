@@ -30,13 +30,8 @@ public class StegocryptoHardware {
     private BluetoothSocket btSocket = null;
     private StegocryptoDataProtocol stegocryptoProtocol;
 
-    /* Hold the calling Activity in case we need to make Toasts or intents */
-    private final Activity activity;
-
-    public StegocryptoHardware(Activity activity) {
-        this.activity = activity;
+    public StegocryptoHardware() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        checkBTState();
     }
 
     /**
@@ -75,7 +70,6 @@ public class StegocryptoHardware {
             Log.i(TAG, "Successfully created Bluetooth socket");
         } catch (IOException e) {
             Log.e(TAG, "Error creating Bluetooth socket: " + e.getMessage());
-            Toast.makeText(activity.getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT);
         }
 
         stegocryptoProtocol = new StegocryptoDataProtocol(btSocket);
@@ -84,9 +78,11 @@ public class StegocryptoHardware {
     }
 
     public boolean sendToHardware(String msg) {
-        Log.v(TAG, "Trying to send message <" + msg + "> to hardware...");
+        return sendToHardware(msg.getBytes());
+    }
 
-        Toast.makeText(activity.getBaseContext(), "Sending data to Stegocrypto Hardware...", Toast.LENGTH_SHORT).show();
+    public boolean sendToHardware(byte[] msg) {
+        Log.v(TAG, "Trying to send message to hardware...");
 
         /* Initial handshake: Send S */
         stegocryptoProtocol.write("S");
@@ -99,7 +95,7 @@ public class StegocryptoHardware {
         }
 
         /* Send length of length string */
-        String length = Integer.toString(msg.length());
+        String length = Integer.toString(msg.length);
         String lengthOfLength = Integer.toString(length.length());
         if (lengthOfLength.length() > 1) {
             Log.e(TAG, "Error. Send limit size exceeded");
@@ -134,8 +130,6 @@ public class StegocryptoHardware {
     public byte[] receiveFromHardware() {
         Log.v(TAG, "Trying to recv message from hardware...");
 
-        Toast.makeText(activity.getBaseContext(), "Receiving data to Stegocrypto Hardware...", Toast.LENGTH_SHORT).show();
-
         /* Initial handshake: Send S */
         byte[] data = stegocryptoProtocol.read(1);
         if (data[0] != 'S') {
@@ -163,25 +157,6 @@ public class StegocryptoHardware {
         /* Receive data */
         data = stegocryptoProtocol.read(datalength);
         return data;
-    }
-
-
-    /**
-     * Checks that the Android device Bluetooth is available and prompts to be turned on if off
-     */
-    private void checkBTState() {
-        if (btAdapter == null) {
-            Toast.makeText(activity.getBaseContext(), "Device does not support bluetooth", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Device doesn't support Bluetooth???");
-        } else {
-            if (btAdapter.isEnabled()) {
-                Log.v(TAG, "BT Device is enabled");
-            } else {
-                Log.v(TAG, "Requesting enable...");
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                activity.startActivityForResult(enableBtIntent, 1);
-            }
-        }
     }
 
     private class StegocryptoDataProtocol {
@@ -247,7 +222,6 @@ public class StegocryptoHardware {
 
                 Log.v(TAG, "Sent " + msgBuffer.length + " bytes: " + new String(msgBuffer, 0, msgBuffer.length));
             } catch (IOException e) {
-                Toast.makeText(activity.getBaseContext(), "Connection Failure", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Bluetooth connection failure on write");
             } catch (InterruptedException e) {
                 Log.e(TAG, "Interrupted exception: " + e.getMessage());

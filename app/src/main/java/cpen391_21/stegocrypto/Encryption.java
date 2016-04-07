@@ -1,11 +1,13 @@
 package cpen391_21.stegocrypto;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -47,7 +49,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
     Uri cameraFileUri;
 
+    private ProgressDialog progressDialog;
     private StegocryptoHardware bluetooth;
+    private byte[] stegoTaskResult;
+    private boolean stegoTaskDone;
 
     final private static int SELECT_LOCATION_REQUEST = 1;
     final private static int PICK_IMAGE_REQUEST = 2;
@@ -80,7 +85,8 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         cameraBtn.setOnClickListener(this);
         drawBtn.setOnClickListener(this);
 
-        bluetooth = new StegocryptoHardware(this);
+        bluetooth = new StegocryptoHardware();
+        progressDialog = new ProgressDialog(this);
     }
 
     @Override
@@ -140,16 +146,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     e.printStackTrace();
                     Log.v("StegoCrpyto-image", "Unable to save image");
                 }*/
-                bluetooth.init();
                 dataET = (EditText) findViewById(R.id.data_for_enc);
                 String data = dataET.getText().toString();
-                Log.i("Bluetooth", "Sending: " + data);
-                bluetooth.sendToHardware(data);
-                byte[] ret = bluetooth.receiveFromHardware();
-                Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
+                new StegoCryptoEncrypt().execute(data.getBytes());
 
-                try { Thread.sleep(1000); } catch (Exception e) {};
-                bluetooth.fini();
 
                 break;
             case R.id.browseImagesBtn:
@@ -277,6 +277,47 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         };
 
         queue.add(sr);
+    }
+
+
+    private class StegoCryptoEncrypt extends AsyncTask<byte[], Integer, byte[]> {
+
+        @Override
+        protected byte[] doInBackground(byte[]... bytes) {
+            int count = bytes.length;
+            long totalSize = 0;
+
+            bluetooth.init();
+
+            Log.i("Bluetooth", "Sending: " + bytes[0]);
+            bluetooth.sendToHardware(bytes[0]);
+
+            byte[] ret = bluetooth.receiveFromHardware();
+            Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
+            totalSize = ret.length;
+
+            try { Thread.sleep(1000); } catch (Exception e) {};
+            bluetooth.fini();
+
+            return ret;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            /* Show progressDialog */
+            progressDialog.setMessage(getString(R.string.loadingEncryption));
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(byte[] result) {
+            stegoTaskResult = result;
+            stegoTaskDone = true;
+            progressDialog.dismiss();
+        }
     }
 }
 

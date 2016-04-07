@@ -29,4 +29,7 @@
     <string name="med">Medium</string>
     <string name="lrg">Large</string>
 
+    <!-- Engine strings -->
+    <string name="loadingEncryption">"StegoCrypto is working to protect your data..."</string>
+
 </resources>
