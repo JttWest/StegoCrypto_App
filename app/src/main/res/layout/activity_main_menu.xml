@@ -42,7 +42,7 @@
     <Button android:id="@+id/goToSendData"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Sent Data"
+        android:text="Send Data"
         android:layout_marginTop="15dip"/>
 
     <Button android:id="@+id/goToDecrypt"
