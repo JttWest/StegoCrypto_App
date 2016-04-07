@@ -82,7 +82,7 @@ public class StegocryptoHardware {
     }
 
     public boolean sendToHardware(byte[] msg) {
-        Log.v(TAG, "Trying to send message to hardware...");
+        Log.v(TAG, "Trying to send message to hardware (" + msg.length + " bytes)...");
 
         /* Initial handshake: Send S */
         stegocryptoProtocol.write("S");

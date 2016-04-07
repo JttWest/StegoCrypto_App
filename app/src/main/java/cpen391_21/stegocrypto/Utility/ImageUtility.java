@@ -43,10 +43,12 @@ public class ImageUtility {
     public static ByteBuffer save(Bitmap orgBitmap, String filePath) throws IOException {
         long start = System.currentTimeMillis();
         if(orgBitmap == null){
+            Log.e("ImageUtility", "orgBitmap was NULL");
             return null;
         }
 
         if(filePath == null){
+            Log.e("ImageUtility", "filePath was NULL");
             return null;
         }
 
@@ -160,6 +162,7 @@ public class ImageUtility {
         }
 
         // return the byte buffer instead of saving to file
+        Log.e("ImageUtility", "buffer returning... size is " + buffer.array().length);
         return buffer;
 
         /*

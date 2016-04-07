@@ -24,6 +24,7 @@ import android.widget.TextView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -146,9 +147,37 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     e.printStackTrace();
                     Log.v("StegoCrpyto-image", "Unable to save image");
                 }*/
+
+                /* Get the data */
                 dataET = (EditText) findViewById(R.id.data_for_enc);
                 String data = dataET.getText().toString();
-                new StegoCryptoEncrypt().execute(data.getBytes());
+                if (data.equals("")) {
+                    data = "(no data)";
+                }
+
+                /* Get the image data */
+                bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
+                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
+                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 50);
+                try {
+                    ByteBuffer imagedatabb = ImageUtility.save(resizedBitmap, "current.bmp");
+
+                    if (imagedatabb == null) {
+                        Log.e("Encryption", "Bitmap was NULL!");
+                    } else {
+//                        byte[] imgbyte = new byte[imagedatabb.remaining()];
+//                        imagedatabb.get(imgbyte, 0, imgbyte.length);
+                        byte[] imgbyte = imagedatabb.array();
+
+                        Log.e("Encryption", "Bitmap has size " + imgbyte.length + " bytes");
+                        new StegoCryptoEncrypt().execute(data.getBytes(), imgbyte);
+                    }
+                } catch (Exception e) {
+                    Log.e("Encryption", "Could not convert bitmap");
+                }
+
+
+
 
 
                 break;
@@ -284,13 +313,17 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
         @Override
         protected byte[] doInBackground(byte[]... bytes) {
-            int count = bytes.length;
             long totalSize = 0;
 
             bluetooth.init();
 
-            Log.i("Bluetooth", "Sending: " + bytes[0]);
+            Log.i("Bluetooth", "Sending text data: " + bytes[0]);
             bluetooth.sendToHardware(bytes[0]);
+
+            Log.i("Bluetooth", "Sending image data");
+            bluetooth.sendToHardware(bytes[1]);
+
+            Log.i("Bluetooth", "Done sending image data");
 
             byte[] ret = bluetooth.receiveFromHardware();
             Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
