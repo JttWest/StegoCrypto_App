@@ -416,9 +416,13 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     break;
                 case 5:
                     progressDialog.setMessage("Sending image data... (this might take a while)");
+                    progressDialog.setMax(bluetooth.progressLimit);
+                    progressDialog.setProgress(bluetooth.progress);
                     break;
                 case 6:
                     progressDialog.setMessage("Receiving image data... (this might take a while)");
+                    progressDialog.setMax(bluetooth.progressLimit);
+                    progressDialog.setProgress(bluetooth.progress);
                     break;
                 default:
                     break;

@@ -102,6 +102,12 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                 imageDisplayIV.buildDrawingCache();
                 Bitmap imageBitmap = view.getDrawingCache();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+                if (imageBitmap == null) {
+                    Log.e("Decryption", "imageBitmap was null");
+                    return;
+                }
+
                 imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] bytes = stream.toByteArray();
 
@@ -203,10 +209,12 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
 
             Log.i("Bluetooth", "Selecting encryption: ");
             bluetooth.selectOption(StegocryptoHardware.OPT.OPT_DECRYPT);
+            publishProgress(1);
 
             Log.i("Bluetooth", "Sending image data");
             bluetooth.sendToHardware(bytes[0]);
             Log.i("Bluetooth", "Done sending image data");
+            publishProgress(2);
 
             /* We need a longer timeout here to give DE2 some time to decrypt */
             byte[] ret = bluetooth.receiveFromHardware(10000);
@@ -214,6 +222,7 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                 Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
                 totalSize = ret.length;
             }
+            publishProgress(3);
 
             try { Thread.sleep(1000); } catch (Exception e) {};
             bluetooth.fini();
@@ -227,8 +236,32 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
 
             /* Show progressDialog */
             progressDialog.setMessage(getString(R.string.loadingEncryption));
+            progressDialog.setIndeterminate(false);
+            progressDialog.setMax(3);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
             progressDialog.setCancelable(false);
             progressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... args) {
+            super.onProgressUpdate();
+            progressDialog.setProgress(args[0]);
+            switch (args[0]) {
+                case 1:
+                    progressDialog.setMessage("Sending image data...");
+                    progressDialog.setMax(bluetooth.progressLimit);
+                    progressDialog.setProgress(bluetooth.progress);
+                    break;
+                case 2:
+                    progressDialog.setMessage("Receiving image data...");
+                    progressDialog.setMax(bluetooth.progressLimit);
+                    progressDialog.setProgress(bluetooth.progress);
+                    break;
+                default:
+                    break;
+            }
         }
 
         @Override
