@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.io.ByteArrayOutputStream;
@@ -166,7 +167,11 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 /* TODO: take values from edittext when GoogleMaps API works */
 
                 String[] latAndLongArray = geo_key.getText().toString().split(",");
-
+                if (latAndLongArray.length < 2) {
+                    Log.e("Encryption", "No entry in geo_key. Cannot proceed");
+                    Toast.makeText(getBaseContext(), "Please select a Geo Key", Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 String latitude = latAndLongArray[0]; //"49.261";
                 String longitude = latAndLongArray[1]; //"-123.251";
 
