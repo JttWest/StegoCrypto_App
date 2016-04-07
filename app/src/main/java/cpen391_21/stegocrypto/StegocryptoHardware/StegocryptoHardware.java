@@ -165,7 +165,7 @@ public class StegocryptoHardware {
 
         /* These parameters throttle the sending rate to prevent overwhelming the DE2's lousy buffering rate */
         private static final int BUFFER_SIZE = 16;
-        private static final int SLEEP_TIME = 250; /* milliseconds */
+        private static final int SLEEP_TIME = 75; /* milliseconds */
 
         public StegocryptoDataProtocol(BluetoothSocket socket) {
             InputStream tmpIn = null;
@@ -214,6 +214,10 @@ public class StegocryptoHardware {
                 /* Write bytes over BT connection via outstream */
                 /* It seems that a rate of 8 bytes then a sleep prevents us from overloading poor DE2 */
                 while (offset < msgBuffer.length) {
+                    if (offset % 500 == 0) {
+                        Log.v(TAG, "Sent " + offset + "/" + msgBuffer.length);
+                    }
+
                     mmOutStream.write(msgBuffer, offset, (offset + BUFFER_SIZE < msgBuffer.length ? BUFFER_SIZE : msgBuffer.length - offset));
                     Thread.sleep(SLEEP_TIME);
                     offset += BUFFER_SIZE;
