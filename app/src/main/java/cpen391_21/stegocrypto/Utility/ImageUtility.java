@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 
 
 public class ImageUtility {
-    public static final int MAX_IMAGE_SIZE = 300;
+    public static final int MAX_IMAGE_SIZE = 50;
 
     private static final int BMP_WIDTH_OF_TIMES = 4;
     private static final int BYTE_PER_PIXEL = 3;

@@ -96,6 +96,13 @@ public class MyGcmListenerService extends GcmListenerService {
 
         intent.putExtra("data", message);
 
+        String msgFromUsername = "";
+        try{
+            JSONObject parsedMsg = new JSONObject(message);
+            msgFromUsername = parsedMsg.getString("fromUserName");
+
+        } catch (JSONException e) {e.printStackTrace();}
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -105,7 +112,7 @@ public class MyGcmListenerService extends GcmListenerService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.stegography_logo)
                 .setContentTitle("StegoCrpyto")
-                .setContentText(message)
+                .setContentText("You received an encryptic image from " + msgFromUsername)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);

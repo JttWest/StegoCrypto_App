@@ -127,6 +127,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 if (stegoTaskResult != null) {
                     String imageBase64 = Base64.encodeToString(stegoTaskResult, Base64.DEFAULT);
                     params.put("data", imageBase64);
+                    Log.i("Derek", imageBase64);
 
                     Log.d("StegoByte", Arrays.toString(stegoTaskResult));
                 }
@@ -161,7 +162,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 /* Get the image data */
                 Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
                 Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
-                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 25);
                 try {
                     ByteBuffer imagedatabb = ImageUtility.bitmapToByteBuffer(resizedBitmap);
 
