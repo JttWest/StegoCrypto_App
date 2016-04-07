@@ -200,9 +200,12 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
             bluetooth.sendToHardware(bytes[0]);
             Log.i("Bluetooth", "Done sending image data");
 
-            byte[] ret = bluetooth.receiveFromHardware();
-            Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
-            totalSize = ret.length;
+            /* We need a longer timeout here to give DE2 some time to decrypt */
+            byte[] ret = bluetooth.receiveFromHardware(10000);
+            if (ret != null) {
+                Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
+                totalSize = ret.length;
+            }
 
             try { Thread.sleep(1000); } catch (Exception e) {};
             bluetooth.fini();
@@ -224,13 +227,17 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
         protected void onPostExecute(byte[] result) {
             stegoTaskResult = result;
 
+            if (result != null) {
             /* Clean the string output */
-            String decrypted = new String(result, 0, result.length);
-            int indexOfNulls = decrypted.indexOf('\0');
-            if (indexOfNulls > 0 && indexOfNulls < decrypted.length())
-                decrypted = decrypted.substring(0, indexOfNulls);
+                String decrypted = new String(result, 0, result.length);
+                int indexOfNulls = decrypted.indexOf('\0');
+                if (indexOfNulls > 0 && indexOfNulls < decrypted.length())
+                    decrypted = decrypted.substring(0, indexOfNulls);
 
-            decryptedDataTV.setText(decrypted);
+                decryptedDataTV.setText(decrypted);
+            } else {
+                decryptedDataTV.setText("(Error decrypting)");
+            }
 
             stegoTaskDone = true;
             progressDialog.dismiss();

@@ -348,9 +348,11 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
             bluetooth.sendToHardware(bytes[3]);
             Log.i("Bluetooth", "Done sending image data");
 
-            byte[] ret = bluetooth.receiveFromHardware();
-            Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
-            totalSize = ret.length;
+            byte[] ret = bluetooth.receiveFromHardware(10000);
+            if (ret != null) {
+                Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
+                totalSize = ret.length;
+            }
 
             try { Thread.sleep(1000); } catch (Exception e) {};
             bluetooth.fini();
@@ -372,8 +374,10 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
         protected void onPostExecute(byte[] result) {
             stegoTaskResult = result;
 
-            String rootDir = Environment.getExternalStorageDirectory().toString();
-            ImageUtility.writeToFile(rootDir + "/stegoCrypto1.bmp", result);
+            if (result != null) {
+                String rootDir = Environment.getExternalStorageDirectory().toString();
+                ImageUtility.writeToFile(rootDir + "/stegoCrypto1.bmp", result);
+            }
 
             stegoTaskDone = true;
             progressDialog.dismiss();

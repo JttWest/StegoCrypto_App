@@ -33,6 +33,9 @@ public class StegocryptoHardware {
     /* Enum declarations */
     public enum OPT {OPT_ENCRYPT, OPT_DECRYPT};
 
+    /* Defaults */
+    private int DEFAULT_TIMEOUT_MILLIS = 500;
+
     public StegocryptoHardware() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
     }
@@ -95,8 +98,8 @@ public class StegocryptoHardware {
         stegocryptoProtocol.write("S");
 
         /* Receive ACK */
-        byte[] data = stegocryptoProtocol.read(1);
-        if (data[0] != 'R') {
+        byte[] data = stegocryptoProtocol.read(1, DEFAULT_TIMEOUT_MILLIS);
+        if (data == null || data[0] != 'R') {
             Log.e(TAG, "Error: Incorrect ACK on initial handshake");
             return false;
         }
@@ -111,8 +114,8 @@ public class StegocryptoHardware {
         stegocryptoProtocol.write(lengthOfLength);
 
         /* Receive ACK */
-        data = stegocryptoProtocol.read(1);
-        if (data[0] != 'R') {
+        data = stegocryptoProtocol.read(1, DEFAULT_TIMEOUT_MILLIS);
+        if (data == null ||data[0] != 'R') {
             Log.e(TAG, "Error: Incorrect ACK on size of length size");
             return false;
         }
@@ -121,8 +124,8 @@ public class StegocryptoHardware {
         stegocryptoProtocol.write(length);
 
         /* Receive ACK */
-        data = stegocryptoProtocol.read(1);
-        if (data[0] != 'R') {
+        data = stegocryptoProtocol.read(1, DEFAULT_TIMEOUT_MILLIS);
+        if (data == null ||data[0] != 'R') {
             Log.e(TAG, "Error: Incorrect ACK on length size");
             return false;
         }
@@ -135,34 +138,44 @@ public class StegocryptoHardware {
     }
 
     public byte[] receiveFromHardware() {
+        return receiveFromHardware(DEFAULT_TIMEOUT_MILLIS);
+    }
+
+    public byte[] receiveFromHardware(int timeout) {
         Log.v(TAG, "Trying to recv message from hardware...");
 
         /* Initial handshake: Send S */
-        byte[] data = stegocryptoProtocol.read(1);
-        if (data[0] != 'S') {
+        byte[] data = stegocryptoProtocol.read(1, timeout);
+        if (data == null || data[0] != 'S') {
             Log.e(TAG, "Error: Incorrect ACK on length size");
-            return new byte[0];
+            return null;
         }
 
         /* Initial handshake: Send R */
         stegocryptoProtocol.write("R");
 
         /* Receive length of length string */
-        data = stegocryptoProtocol.read(1);
+        data = stegocryptoProtocol.read(1, timeout);
+        if (data == null)
+            return null;
+
         int lengthOfLength = Integer.valueOf(new String(data, 0, data.length));
 
         /* Send ACK: R */
         stegocryptoProtocol.write("R");
 
         /* Receive length of data */
-        data = stegocryptoProtocol.read(lengthOfLength);
+        data = stegocryptoProtocol.read(lengthOfLength, timeout);
+        if (data == null)
+            return null;
+
         int datalength = Integer.valueOf(new String(data, 0, data.length));
 
         /* Send ACK: R */
         stegocryptoProtocol.write("R");
 
         /* Receive data */
-        data = stegocryptoProtocol.read(datalength);
+        data = stegocryptoProtocol.read(datalength, timeout);
         return data;
     }
 
@@ -258,15 +271,28 @@ public class StegocryptoHardware {
             }
         }
 
-        public byte[] read(int numBytes) {
+        public byte[] read(int numBytes, int timeout) {
             byte[] buffer = new byte[numBytes];
 
             int bytes = 0;
 
             while (bytes < numBytes) {
-            /* Keep looping to listen for received messages */
                 try {
-                /* read bytes from input buffer */
+                    /* Keep looping to listen for received messages */
+                    Long time = System.currentTimeMillis();
+                    Long curTime = time;
+                    while (mmInStream.available() < 1 && curTime - time < timeout) {
+                        try { Thread.sleep(500); } catch(Exception e) {}
+                        curTime = System.currentTimeMillis();
+                    }
+
+                    /* Check if we timed out */
+                    if (mmInStream.available() < 1) {
+                        Log.e("Read Message", "Connection timed out, stopping operation");
+                        return null;
+                    }
+
+                    /* read bytes from input buffer */
                     bytes += mmInStream.read(buffer, bytes, numBytes - bytes);
                     Log.v("Read Message", "Read " + Integer.toString(bytes) + "bytes");
                 } catch (IOException e) {}
