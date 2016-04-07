@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -26,17 +29,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
+import java.io.IOException;
 
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
 import cpen391_21.stegocrypto.ServerRequests.HTTPCommands;
-import cpen391_21.stegocrypto.ServerRequests.UserAccountRequests;
 import cpen391_21.stegocrypto.StegocryptoHardware.StegocryptoHardware;
 import cpen391_21.stegocrypto.Utility.ImageUtility;
 
 
 public class Decryption extends AppCompatActivity implements View.OnClickListener{
     Button decryptedBtn;
+    Button browseImagesBtn;
     TextView decryptedDataTV;
     ImageView imageDisplayIV;
 
@@ -44,6 +47,9 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
     private StegocryptoHardware bluetooth;
     private byte[] stegoTaskResult = null;
     private boolean stegoTaskDone = false;
+
+    /* Request enums */
+    final private static int PICK_IMAGE_REQUEST = 1;
 
 
     @Override
@@ -53,9 +59,11 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
 
         decryptedBtn = (Button) findViewById(R.id.decryptedBtn);
         decryptedDataTV = (TextView) findViewById(R.id.decrypted_data);
+        browseImagesBtn = (Button) findViewById(R.id.browseButton);
         imageDisplayIV = (ImageView) findViewById(R.id.imageDisplay);
 
         decryptedBtn.setOnClickListener(this);
+        browseImagesBtn.setOnClickListener(this);
 
         bluetooth = new StegocryptoHardware();
         progressDialog = new ProgressDialog(this);
@@ -91,8 +99,7 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.decryptedBtn:
-                decryptedDataTV.setText("Decrpyted data appears here");
-                 /* Get the image data */
+                /* Get the image data */
 
                 /* TODO: get real image data. For now, import from hardcoded file */
                 //String rootDir = Environment.getExternalStorageDirectory().toString();
@@ -100,11 +107,12 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                 // Retrieve bytes from current image from display
                 imageDisplayIV.setDrawingCacheEnabled(true);
                 imageDisplayIV.buildDrawingCache();
-                Bitmap imageBitmap = view.getDrawingCache();
+                Bitmap imageBitmap = imageDisplayIV.getDrawingCache();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
                 if (imageBitmap == null) {
                     Log.e("Decryption", "imageBitmap was null");
+                    Toast.makeText(getBaseContext(), "You must select an image", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -131,6 +139,34 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                 } catch (Exception e) {
                     Log.e("Decryption", "Could not convert bitmap");
                 }
+                break;
+            case R.id.browseButton:
+                Intent intent = new Intent();
+                // Show only images, no videos or anything else
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                // Always show the chooser (if there are multiple options available)
+                startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+                break;
+        }
+    }
+
+    // retrieve result from select location activity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_CANCELED)
+            return;
+
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case PICK_IMAGE_REQUEST:
+                Uri uri = data.getData();
+                try {
+                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    Log.v("StegoCrypto-Image", String.valueOf(imageBitmap));
+
+                    imageDisplayIV.setImageBitmap(ImageUtility.getResizedBitmap(imageBitmap, ImageUtility.MAX_IMAGE_SIZE));
+                } catch (IOException e) {e.printStackTrace();}
                 break;
         }
     }
@@ -235,6 +271,7 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
             super.onPreExecute();
 
             /* Show progressDialog */
+            progressDialog.setTitle("Decrypting...");
             progressDialog.setMessage(getString(R.string.loadingEncryption));
             progressDialog.setIndeterminate(false);
             progressDialog.setMax(3);
