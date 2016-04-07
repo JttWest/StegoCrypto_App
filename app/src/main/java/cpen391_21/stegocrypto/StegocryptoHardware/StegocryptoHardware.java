@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,20 +25,16 @@ public class StegocryptoHardware {
     /* SPP UUID service - this should work for most devices */
     private static final UUID BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    /* Used to identify handler message */
-    final int handlerState = 0;
+    /* Bluetooth functions */
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
-    Handler bluetoothIn;
     private StegocryptoDataProtocol stegocryptoProtocol;
 
-    private final Context baseContext;
+    /* Hold the calling Activity in case we need to make Toasts or intents */
     private final Activity activity;
 
-    public StegocryptoHardware(Activity activity, Context baseContext) {
-        this.baseContext = baseContext;
+    public StegocryptoHardware(Activity activity) {
         this.activity = activity;
-        bluetoothIn = new BroadcastHandler();
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         checkBTState();
     }
@@ -80,7 +75,7 @@ public class StegocryptoHardware {
             Log.i(TAG, "Successfully created Bluetooth socket");
         } catch (IOException e) {
             Log.e(TAG, "Error creating Bluetooth socket: " + e.getMessage());
-            Toast.makeText(baseContext, "Socket creation failed", Toast.LENGTH_SHORT);
+            Toast.makeText(activity.getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT);
         }
 
         stegocryptoProtocol = new StegocryptoDataProtocol(btSocket);
@@ -89,7 +84,6 @@ public class StegocryptoHardware {
     }
 
     public void sendToHardware(String msg) {
-        //mConnectedThread.write(msg);
         stegocryptoProtocol.write(msg);
         try { Thread.sleep(1); } catch (Exception e) {};
     }
@@ -105,7 +99,7 @@ public class StegocryptoHardware {
      */
     private void checkBTState() {
         if (btAdapter == null) {
-            Toast.makeText(baseContext, "Device does not support bluetooth", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity.getBaseContext(), "Device does not support bluetooth", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Device doesn't support Bluetooth???");
         } else {
             if (btAdapter.isEnabled()) {
@@ -181,7 +175,7 @@ public class StegocryptoHardware {
 
                 Log.i(TAG, "Sent message!");
             } catch (IOException e) {
-                Toast.makeText(baseContext, "Connection Failure", Toast.LENGTH_LONG).show();
+                Toast.makeText(activity.getBaseContext(), "Connection Failure", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Bluetooth connection failure on write");
             } catch (InterruptedException e) {
                 Log.e(TAG, "Interrupted exception: " + e.getMessage());
@@ -202,18 +196,6 @@ public class StegocryptoHardware {
                 } catch (IOException e) {}
             }
             return buffer;
-        }
-    }
-
-    private class BroadcastHandler extends Handler {
-
-        public void handleMessage(android.os.Message msg) {
-            /* Check if this message is what we want */
-            if (msg.what == handlerState) {
-                /* msg.arg1 = bytes from connectThread */
-                String readMessage = (String) msg.obj;
-                Log.e(TAG, "Received BTMSG " + readMessage);
-            }
         }
     }
 }
