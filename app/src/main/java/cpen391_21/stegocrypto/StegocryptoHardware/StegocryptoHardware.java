@@ -30,9 +30,8 @@ public class StegocryptoHardware {
     final int handlerState = 0;
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
-    private StringBuilder recDataString = new StringBuilder();
     Handler bluetoothIn;
-    private ConnectedThread mConnectedThread;
+    private StegocryptoDataProtocol stegocryptoProtocol;
 
     private final Context baseContext;
     private final Activity activity;
@@ -54,7 +53,9 @@ public class StegocryptoHardware {
             /* If you close the socket too quickly after sending data, you'll hang the Bluetooth */
             Thread.sleep(1000);
             /* Don't leave Bluetooth sockets open when leaving activity */
+            stegocryptoProtocol.close();
             btSocket.close();
+
             Log.i(TAG, "Successfully closed");
         } catch (IOException e2) {
             Log.e(TAG, "Error closing bluetooth socket in fini: " + e2.getMessage());
@@ -82,20 +83,20 @@ public class StegocryptoHardware {
             Toast.makeText(baseContext, "Socket creation failed", Toast.LENGTH_SHORT);
         }
 
-        mConnectedThread = new ConnectedThread(btSocket);
-        mConnectedThread.start();
+        stegocryptoProtocol = new StegocryptoDataProtocol(btSocket);
 
         Log.i(TAG, "Connected to Bluetooth");
     }
 
     public void sendToHardware(String msg) {
-        mConnectedThread.write(msg);
+        //mConnectedThread.write(msg);
+        stegocryptoProtocol.write(msg);
         try { Thread.sleep(1); } catch (Exception e) {};
     }
 
-    public String receiveFromHardware() {
-        // TODO: implement me!
-        return "";
+    public String receiveFromHardware(int length) {
+        byte[] data = stegocryptoProtocol.read(length);
+        return new String(data, 0, data.length);
     }
 
 
@@ -117,13 +118,15 @@ public class StegocryptoHardware {
         }
     }
 
-    private class ConnectedThread extends Thread {
+    private class StegocryptoDataProtocol {
         private final BufferedInputStream mmInStream;
         private final BufferedOutputStream mmOutStream;
 
+        /* These parameters throttle the sending rate to prevent overwhelming the DE2's lousy buffering rate */
+        private static final int BUFFER_SIZE = 16;
+        private static final int SLEEP_TIME = 250; /* milliseconds */
 
-        //creation of the connect thread
-        public ConnectedThread(BluetoothSocket socket) {
+        public StegocryptoDataProtocol(BluetoothSocket socket) {
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
@@ -137,40 +140,17 @@ public class StegocryptoHardware {
             }
 
             mmInStream = new BufferedInputStream(tmpIn);
-            mmOutStream = new BufferedOutputStream(tmpOut, 8);
+            mmOutStream = new BufferedOutputStream(tmpOut, BUFFER_SIZE);
         }
 
-        public void run() {
-            byte[] buffer = new byte[256];
-
-            int bytes = 0;
-
-            // Keep looping to listen for received messages
-            while (true) {
-                try {
-                    StringBuilder read = new StringBuilder();
-
-                    try { Thread.sleep(1); } catch (Exception e) {};
-
-                    //while (mmInStream.available() > 0) {
-                        /* read bytes from input buffer */
-                        bytes = mmInStream.read(buffer);
-                        Log.e("Read Message", "Read " + Integer.toString(bytes) + "bytes");
-                        read.append(new String(buffer, 0, bytes));
-                    //}
-
-
-                    //String readMessage = new String(buffer, 0, bytes);
-                    String readMessage = read.toString();
-
-                    // Send the obtained bytes to the UI Activity via handler
-                    Log.e("Read Message", "Message: " + readMessage);
-
-                    bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget();
-                } catch (IOException e) {
-                    break;
-                }
-            }
+        /**
+         * Cleanup is good
+         */
+        public void close() {
+            try {
+                mmInStream.close();
+                mmOutStream.close();
+            } catch (Exception e) {}
         }
 
         /**
@@ -193,11 +173,11 @@ public class StegocryptoHardware {
                 /* Write bytes over BT connection via outstream */
                 /* It seems that a rate of 8 bytes then a sleep prevents us from overloading poor DE2 */
                 while (offset < msgBuffer.length) {
-                    mmOutStream.write(msgBuffer, offset, (offset + 16 < msgBuffer.length ? 16 : msgBuffer.length - offset));
-                    Thread.sleep(250);
-                    offset += 16;
+                    mmOutStream.write(msgBuffer, offset, (offset + BUFFER_SIZE < msgBuffer.length ? BUFFER_SIZE : msgBuffer.length - offset));
+                    Thread.sleep(SLEEP_TIME);
+                    offset += BUFFER_SIZE;
                 }
-                //mmOutStream.flush();
+                mmOutStream.flush();
 
                 Log.i(TAG, "Sent message!");
             } catch (IOException e) {
@@ -206,6 +186,22 @@ public class StegocryptoHardware {
             } catch (InterruptedException e) {
                 Log.e(TAG, "Interrupted exception: " + e.getMessage());
             }
+        }
+
+        public byte[] read(int numBytes) {
+            byte[] buffer = new byte[numBytes];
+
+            int bytes = 0;
+
+            while (bytes < numBytes) {
+            /* Keep looping to listen for received messages */
+                try {
+                /* read bytes from input buffer */
+                    bytes += mmInStream.read(buffer, bytes, numBytes - bytes);
+                    Log.e("Read Message", "Read " + Integer.toString(bytes) + "bytes");
+                } catch (IOException e) {}
+            }
+            return buffer;
         }
     }
 
