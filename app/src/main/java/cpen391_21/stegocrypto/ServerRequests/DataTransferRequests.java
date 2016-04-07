@@ -97,7 +97,8 @@ public class DataTransferRequests {
 
                 byte[] decodedBytes = Base64.decode(bae64Image, Base64.DEFAULT);
 
-                resultBuffer.buf = decodedBytes;
+                if (resultBuffer != null)
+                    resultBuffer.buf = decodedBytes;
 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, Base64.DEFAULT, decodedBytes.length);
 
