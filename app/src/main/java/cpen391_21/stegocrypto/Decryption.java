@@ -1,7 +1,12 @@
 package cpen391_21.stegocrypto;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
+import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,15 +25,24 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.ByteBuffer;
+
 import cpen391_21.stegocrypto.ServerRequests.DataTransferRequests;
 import cpen391_21.stegocrypto.ServerRequests.HTTPCommands;
 import cpen391_21.stegocrypto.ServerRequests.UserAccountRequests;
+import cpen391_21.stegocrypto.StegocryptoHardware.StegocryptoHardware;
+import cpen391_21.stegocrypto.Utility.ImageUtility;
 
 
 public class Decryption extends AppCompatActivity implements View.OnClickListener{
     Button decryptedBtn;
     TextView decryptedDataTV;
     ImageView imageDisplayIV;
+
+    private ProgressDialog progressDialog;
+    private StegocryptoHardware bluetooth;
+    private byte[] stegoTaskResult = null;
+    private boolean stegoTaskDone = false;
 
 
     @Override
@@ -42,8 +56,10 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
 
         decryptedBtn.setOnClickListener(this);
 
-        tryRetrieveImageFromServer();
+        bluetooth = new StegocryptoHardware();
+        progressDialog = new ProgressDialog(this);
 
+        tryRetrieveImageFromServer();
     }
     /*
     @Override
@@ -75,7 +91,32 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
         switch (view.getId()) {
             case R.id.decryptedBtn:
                 decryptedDataTV.setText("Decrpyted data appears here");
-                //TODO: bluetooth data, wait for decryption
+                 /* Get the image data */
+
+                /* TODO: get real image data. For now, import from hardcoded file */
+                String rootDir = Environment.getExternalStorageDirectory().toString();
+                byte[] bytes = ImageUtility.readFromFile(rootDir + "/stegoCrypto1.bmp");
+
+               // Bitmap bitmap = ((BitmapDrawable)imageDisplayIV.getDrawable()).getBitmap();
+               // Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
+               // resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 50);
+                try {
+                    //ByteBuffer imagedatabb = ImageUtility.save(resizedBitmap, "current.bmp");
+
+                    if (false) {
+                    //if (imagedatabb == null) {
+                        Log.e("Decryption", "Bitmap was NULL!");
+                    } else {
+                        //byte[] imgbyte = imagedatabb.array();
+                        //Log.e("Decryption", "Bitmap has size " + imgbyte.length + " bytes");
+
+                        /* Send the data to the hardware */
+                        //new StegoCryptoDecrypt().execute(imgbyte);
+                        new StegoCryptoDecrypt().execute(bytes);
+                    }
+                } catch (Exception e) {
+                    Log.e("Decryption", "Could not convert bitmap");
+                }
                 break;
         }
     }
@@ -134,5 +175,65 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
         */
+    }
+
+    private class StegoCryptoDecrypt extends AsyncTask<byte[], Integer, byte[]> {
+
+        /**
+         *
+         * @param bytes bytes[0]: text data
+         *              bytes[1]: longitude
+         *              bytes[2]: latitude
+         *              bytes[3]: image
+         * @return
+         */
+        @Override
+        protected byte[] doInBackground(byte[]... bytes) {
+            long totalSize = 0;
+
+            bluetooth.init();
+
+            Log.i("Bluetooth", "Selecting encryption: ");
+            bluetooth.selectOption(StegocryptoHardware.OPT.OPT_DECRYPT);
+
+            Log.i("Bluetooth", "Sending image data");
+            bluetooth.sendToHardware(bytes[0]);
+            Log.i("Bluetooth", "Done sending image data");
+
+            byte[] ret = bluetooth.receiveFromHardware();
+            Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
+            totalSize = ret.length;
+
+            try { Thread.sleep(1000); } catch (Exception e) {};
+            bluetooth.fini();
+
+            return ret;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            /* Show progressDialog */
+            progressDialog.setMessage(getString(R.string.loadingEncryption));
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(byte[] result) {
+            stegoTaskResult = result;
+
+            /* Clean the string output */
+            String decrypted = new String(result, 0, result.length);
+            int indexOfNulls = decrypted.indexOf('\0');
+            if (indexOfNulls > 0 && indexOfNulls < decrypted.length())
+                decrypted = decrypted.substring(0, indexOfNulls);
+
+            decryptedDataTV.setText(decrypted);
+
+            stegoTaskDone = true;
+            progressDialog.dismiss();
+        }
     }
 }
