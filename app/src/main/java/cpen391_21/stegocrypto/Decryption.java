@@ -100,11 +100,6 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
         switch (view.getId()) {
             case R.id.decryptedBtn:
                 /* Get the image data */
-
-                /* TODO: get real image data. For now, import from hardcoded file */
-                //String rootDir = Environment.getExternalStorageDirectory().toString();
-                //byte[] bytes = ImageUtility.readFromFile(rootDir + "/stegoCrypto1.bmp");
-                // Retrieve bytes from current image from display
                 imageDisplayIV.setDrawingCacheEnabled(true);
                 imageDisplayIV.buildDrawingCache();
                 Bitmap imageBitmap = imageDisplayIV.getDrawingCache();
@@ -288,13 +283,9 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
             switch (args[0]) {
                 case 1:
                     progressDialog.setMessage("Sending image data...");
-                    progressDialog.setMax(bluetooth.progressLimit);
-                    progressDialog.setProgress(bluetooth.progress);
                     break;
                 case 2:
                     progressDialog.setMessage("Receiving image data...");
-                    progressDialog.setMax(bluetooth.progressLimit);
-                    progressDialog.setProgress(bluetooth.progress);
                     break;
                 default:
                     break;

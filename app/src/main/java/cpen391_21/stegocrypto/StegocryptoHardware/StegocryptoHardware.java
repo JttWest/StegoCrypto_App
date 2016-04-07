@@ -36,10 +36,6 @@ public class StegocryptoHardware {
     /* Defaults */
     private int DEFAULT_TIMEOUT_MILLIS = 500;
 
-    /* Hacky */
-    public int progress;
-    public int progressLimit;
-
     public StegocryptoHardware() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
     }
@@ -237,7 +233,6 @@ public class StegocryptoHardware {
                 int offset = 0;
                 /* Write bytes over BT connection via outstream */
                 /* It seems that a rate of 8 bytes then a sleep prevents us from overloading poor DE2 */
-                progressLimit = msgBuffer.length;
                 while (offset < msgBuffer.length) {
                     if (offset % 500 == 0) {
                         Log.v(TAG, "Sent " + offset + "/" + msgBuffer.length);
@@ -246,7 +241,6 @@ public class StegocryptoHardware {
                     mmOutStream.write(msgBuffer, offset, (offset + BUFFER_SIZE < msgBuffer.length ? BUFFER_SIZE : msgBuffer.length - offset));
                     Thread.sleep(SLEEP_TIME);
                     offset += BUFFER_SIZE;
-                    progress = offset;
                 }
                 mmOutStream.flush();
 
@@ -282,7 +276,6 @@ public class StegocryptoHardware {
 
             int bytes = 0;
 
-            progressLimit = numBytes;
             while (bytes < numBytes) {
                 try {
                     /* Keep looping to listen for received messages */
@@ -302,7 +295,6 @@ public class StegocryptoHardware {
                     /* read bytes from input buffer */
                     bytes += mmInStream.read(buffer, bytes, numBytes - bytes);
                     Log.v("Read Message", "Read " + Integer.toString(bytes) + "bytes");
-                    progress = bytes;
                 } catch (IOException e) {}
             }
             return buffer;

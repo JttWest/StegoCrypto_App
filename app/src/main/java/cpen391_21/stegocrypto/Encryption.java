@@ -325,35 +325,35 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
             bluetooth.init();
 
+            publishProgress(1);
             Log.i("Bluetooth", "Selecting encryption: ");
             bluetooth.selectOption(StegocryptoHardware.OPT.OPT_ENCRYPT);
-            publishProgress(1);
 
+            publishProgress(2);
             Log.i("Bluetooth", "Sending text data: " + bytes[0]);
             bluetooth.sendToHardware(bytes[0]);
-            publishProgress(2);
 
+            publishProgress(3);
             Log.i("Bluetooth", "Sending longitude data");
             bluetooth.sendToHardware(bytes[1]);
             Log.i("Bluetooth", "Done sending longitude data");
-            publishProgress(3);
 
+            publishProgress(4);
             Log.i("Bluetooth", "Sending latitude data");
             bluetooth.sendToHardware(bytes[2]);
             Log.i("Bluetooth", "Done sending latitude data");
-            publishProgress(4);
 
+            publishProgress(5);
             Log.i("Bluetooth", "Sending image data");
             bluetooth.sendToHardware(bytes[3]);
             Log.i("Bluetooth", "Done sending image data");
-            publishProgress(5);
 
+            publishProgress(6);
             byte[] ret = bluetooth.receiveFromHardware(10000);
             if (ret != null) {
                 Log.i("Bluetooth", "Received: " + new String(ret, 0, ret.length));
                 totalSize = ret.length;
             }
-            publishProgress(6);
 
             try { Thread.sleep(1000); } catch (Exception e) {};
             bluetooth.fini();
@@ -398,13 +398,9 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                     break;
                 case 5:
                     progressDialog.setMessage("Sending image data... (this might take a while)");
-                    progressDialog.setMax(bluetooth.progressLimit);
-                    progressDialog.setProgress(bluetooth.progress);
                     break;
                 case 6:
                     progressDialog.setMessage("Receiving image data... (this might take a while)");
-                    progressDialog.setMax(bluetooth.progressLimit);
-                    progressDialog.setProgress(bluetooth.progress);
                     break;
                 default:
                     break;
@@ -417,7 +413,7 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
 
             if (result != null) {
                 String rootDir = Environment.getExternalStorageDirectory().toString();
-                ImageUtility.writeToFile(rootDir + "/stegoCrypto1.bmp", result);
+                ImageUtility.writeToFile(rootDir + "/images/stegoCrypto1.bmp", result);
                 Toast.makeText(getBaseContext(), "Success", Toast.LENGTH_LONG).show();
             }
 
