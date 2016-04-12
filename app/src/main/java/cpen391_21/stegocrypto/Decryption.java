@@ -67,30 +67,6 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
 
         tryRetrieveImageFromServer();
     }
-    /*
-    @Override
-    protected void onStart(){
-        super.onStart();
-
-        if (getIntent().getExtras() != null) {
-            Bundle b = getIntent().getExtras();
-            String rawData = b.getString("data");
-
-            if (rawData != null) {
-                try {
-                    JSONObject jsonData = new JSONObject(rawData);
-                    String packageID = jsonData.getString("package_id");
-
-                    String requestURL = HTTPCommands.SERVER_URL + "retrieveDataFromPackage" +
-                            "?packageID=" + packageID;
-
-                    DataTransferRequests dataTransferRequests = new DataTransferRequests(this);
-                    dataTransferRequests.retrieveDataAsyncTask(requestURL, imageDisplayIV);
-                } catch (JSONException e) {e.printStackTrace();}
-            }
-        }
-    }*/
-
 
     @Override
     public void onClick(View view) {
@@ -114,13 +90,8 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                 Log.d("StegoByte",  Arrays.toString(resultByteBuffer.buf));
 
                 Bitmap bitmap = ((BitmapDrawable)imageDisplayIV.getDrawable()).getBitmap();
-                Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
-                resizedBitmap = ImageUtility.getResizedBitmap(bitmap, 100);
                 try {
-                    //ByteBuffer imagedatabb = ImageUtility.bitmapToByteBuffer(resizedBitmap);
-
-
-                /* Send the data to the hardware */
+                    /* Send the data to the hardware */
                     new StegoCryptoDecrypt().execute(resultByteBuffer.buf);
                     //new StegoCryptoDecrypt().execute(bytes);
 
@@ -179,42 +150,6 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
                 } catch (JSONException e) {e.printStackTrace();}
             }
         }
-    }
-
-    private void displayData(final TextView decryptedDataTV) {
-
-        Intent i = getIntent();
-        String data = i.getStringExtra("data");
-
-        if (data != null){
-            decryptedDataTV.setText(data);
-        }
-
-        /*
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://stegocrypto-server.herokuapp.com/retrieveData";
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    // Display the first 500 characters of the response string.
-                    decryptedDataTV.setText(response);
-                    //Log.v("StegoCrypto", "Response from server is: " + response.substring(0, 500));
-                }
-            }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.v("StegoCrypto", "Failed to retrieve data: " + error.getMessage());
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-        */
     }
 
     private class StegoCryptoDecrypt extends AsyncTask<byte[], Integer, byte[]> {
@@ -320,13 +255,9 @@ public class Decryption extends AppCompatActivity implements View.OnClickListene
         }
     }
 
+    // Container class to pass byte buffer to async data retrieval from our API server
     public class byteBufContainer{
         public byte[] buf;
-        /*
-        public byteBufContainer(byte[] buf){
-            this.buf = buf;
-        }*/
-
     }
 
 }

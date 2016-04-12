@@ -18,6 +18,7 @@ import java.util.HashMap;
 import cpen391_21.stegocrypto.Decryption;
 import cpen391_21.stegocrypto.User.User;
 
+// Class for sending and retrieving data from our API server
 public class DataTransferRequests {
     ProgressDialog progressDialog;
     Context context;
@@ -43,6 +44,7 @@ public class DataTransferRequests {
         new RetrieveDataAsyncTask(imageView, resultBuffer).execute(url);
     }
 
+    // Send image to another user
     public class SendDataAsyncTask extends AsyncTask<HashMap<String, String>, Void, String> {
 
         @Override
@@ -74,6 +76,7 @@ public class DataTransferRequests {
         }
     }
 
+    // Retrieve an image from data package
     public class RetrieveDataAsyncTask extends AsyncTask<String, Void, String> {
         ImageView imageView;
         Decryption.byteBufContainer resultBuffer;
@@ -102,7 +105,7 @@ public class DataTransferRequests {
 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, Base64.DEFAULT, decodedBytes.length);
 
-                imageView.setImageBitmap(bitmap);
+                imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth()*10, bitmap.getHeight()*10, false));
             } catch (JSONException e) {
                 Toast.makeText(context, "Unable to retrive image from server", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();

@@ -26,6 +26,8 @@ import cpen391_21.stegocrypto.GCM.RegistrationIntentService;
 import cpen391_21.stegocrypto.User.User;
 import cpen391_21.stegocrypto.User.GetUserCallback;
 
+
+// Class for sending User login/registration request to server
 public class UserAccountRequests {
     ProgressDialog progressDialog;
     Context context;

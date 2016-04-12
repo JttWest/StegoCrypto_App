@@ -1,6 +1,5 @@
 package cpen391_21.stegocrypto.DataTransferHistory;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -20,6 +19,8 @@ import java.util.ArrayList;
 
 import cpen391_21.stegocrypto.R;
 
+
+// Array adapter for data transfer history to create custom ListView
 public class DataTransferHistoryArrayAdapter extends ArrayAdapter<DataTransferHistoryItem> {
     private Context context ;
     private ArrayList<DataTransferHistoryItem> dataTransferHistoryArray;
@@ -56,16 +57,6 @@ public class DataTransferHistoryArrayAdapter extends ArrayAdapter<DataTransferHi
         }
 
         row.setBackground(mDrawable);
-
-        /* Example from reference -- remove after demo
-        ImageView icon = (ImageView) row.findViewById (R.id.BTicon);
-        icon.setImageResource (R.drawable.bluetooth);
-        icon.setVisibility (View.VISIBLE);
-        TextView label = (TextView) row.findViewById( R.id.BTdeviceText);
-        label.setText (theStringArray.get(position)));
-        icon = (ImageView) row.findViewById (R.id.Selected);
-        icon.setImageResource (R.drawable.redcross);
-        icon.setVisibility (View.VISIBLE);*/
 
         return row;
     }

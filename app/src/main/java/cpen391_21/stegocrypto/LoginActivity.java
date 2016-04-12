@@ -57,34 +57,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         userLocalStore = new UserLocalStore(this);
 
-        /*
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    InstanceID instanceID = InstanceID.getInstance(getApplicationContext());
-                    String token = instanceID.getToken("825891894079" , //getString(R.string.gcm_defaultSenderId),
-                            GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                    Log.d("StegoCrpyto-GCM", "Token: " + token);
-                } catch (IOException e) {e.printStackTrace();}
-            }
-        }).start();*/
-
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
                 SharedPreferences sharedPreferences =
                         PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences
                         .getBoolean(RegistrationIntentService.SENT_TOKEN_TO_SERVER, false);
-                if (sentToken) {
-                    //mInformationTextView.setText(getString(R.string.gcm_send_message));
-                } else {
-                    //mInformationTextView.setText(getString(R.string.token_error_message));
-                }
             }
         };
-        //mInformationTextView = (TextView) findViewById(R.id.informationTextView);
 
         // Registering BroadcastReceiver
         registerReceiver();

@@ -79,6 +79,9 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             goToRegisterBtn.setVisibility(View.GONE);
             goToLoginBtn.setVisibility(View.GONE);
             logoutBtn.setVisibility(View.VISIBLE);
+            goToSendDataBtn.setVisibility(View.VISIBLE);
+            goToDecryptBtn.setVisibility(View.VISIBLE);
+            historyBtn.setVisibility(View.VISIBLE);
 
             User currUser = userLocalStore.getLoggedInUser();
             String userName = currUser.getUserName();
@@ -89,13 +92,14 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             goToLoginBtn.setVisibility(View.VISIBLE);
             logoutBtn.setVisibility(View.GONE);
             displayName.setVisibility((View.GONE));
+            goToSendDataBtn.setVisibility(View.GONE);
+            goToDecryptBtn.setVisibility(View.GONE);
+            historyBtn.setVisibility(View.GONE);
         }
     }
 
     private boolean authenticate() {
         if (userLocalStore.getLoggedInUser() == null) {
-            //Intent intent = new Intent(this, Login.class);
-            //startActivity(intent);
             return false;
         }
         return true;

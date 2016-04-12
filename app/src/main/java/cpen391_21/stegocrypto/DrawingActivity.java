@@ -70,14 +70,6 @@ public class DrawingActivity extends Activity implements OnClickListener {
         saveBtn.setOnClickListener(this);
     }
 
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }*/
-
     //user clicked paint
     public void paintClicked(View view){
         //use chosen color
@@ -203,42 +195,5 @@ public class DrawingActivity extends Activity implements OnClickListener {
             setResult(RESULT_OK, intent);
             finish();
         }
-
-        /*
-        else if(view.getId()==R.id.save_btn){
-            //bitmapToByteBuffer drawing
-            AlertDialog.Builder saveDialog = new AlertDialog.Builder(this);
-            saveDialog.setTitle("Save drawing");
-            saveDialog.setMessage("Save drawing to device Gallery?");
-            saveDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
-                public void onClick(DialogInterface dialog, int which){
-                    //bitmapToByteBuffer drawing
-                    drawView.setDrawingCacheEnabled(true);
-                    //attempt to bitmapToByteBuffer
-                    String imgSaved = MediaStore.Images.Media.insertImage(
-                            getContentResolver(), drawView.getDrawingCache(),
-                            UUID.randomUUID().toString()+".png", "StegoCrypto drawing");
-                    //feedback
-                    if(imgSaved!=null){
-                        Toast savedToast = Toast.makeText(getApplicationContext(),
-                                "Drawing saved to Gallery!", Toast.LENGTH_SHORT);
-                        savedToast.show();
-                    }
-                    else{
-                        Toast unsavedToast = Toast.makeText(getApplicationContext(),
-                                "Oops! Image could not be saved.", Toast.LENGTH_SHORT);
-                        unsavedToast.show();
-                    }
-                    drawView.destroyDrawingCache();
-                }
-            });
-            saveDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
-                public void onClick(DialogInterface dialog, int which){
-                    dialog.cancel();
-                }
-            });
-            saveDialog.show();
-        }
-        */
     }
 }

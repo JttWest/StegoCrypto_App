@@ -1,6 +1,6 @@
 package cpen391_21.stegocrypto.DataTransferHistory;
 
-
+// A DataTransferHistoryItem that stores info for our custom data transfer history ListView
 public class DataTransferHistoryItem {
     public String action;
     public String username;

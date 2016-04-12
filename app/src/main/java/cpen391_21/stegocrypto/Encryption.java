@@ -108,22 +108,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 params.put("fromUserName", Uri.encode(from_username));
                 params.put("toUserName", Uri.encode(toUsername.getText().toString()));
 
-
-                // grab the current selected bitmap and convert it to base64 string
-                //Bitmap bitmap = ((BitmapDrawable)selectedImageIV.getDrawable()).getBitmap();
-                //Bitmap resizedBitmap = ImageUtility.getResizedBitmap(bitmap, ImageUtility.MAX_IMAGE_SIZE);
-
-                // grab the image from local storage now instead
-                String root = Environment.getExternalStorageDirectory().toString();
-//                File imgFile = new  File(root + "/stegoCrypto1.bmp");
-//                if(imgFile.exists()) {
-//                    Bitmap encImgBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-//                    ByteArrayOutputStream byteArrayOS  = new ByteArrayOutputStream();
-//                    encImgBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS);
-//                    String imageBase64 = Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
-//
-//                    params.put("data", imageBase64);
-//                }
                 if (stegoTaskResult != null) {
                     String imageBase64 = Base64.encodeToString(stegoTaskResult, Base64.DEFAULT);
                     params.put("data", imageBase64);
@@ -147,8 +131,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 if (data.equals("")) {
                     data = "(no data)";
                 }
-
-                /* TODO: take values from edittext when GoogleMaps API works */
 
                 String[] latAndLongArray = geo_key.getText().toString().split(",");
                 if (latAndLongArray.length < 2) {
@@ -278,48 +260,6 @@ public class Encryption extends AppCompatActivity implements View.OnClickListene
                 break;
         }
     }
-
-
-    /* will removing this later */
-    private void postData(final String data) {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String postDataURL = "https://stegocrypto-server.herokuapp.com/sendData";
-
-        StringRequest sr = new StringRequest(Request.Method.POST,postDataURL , new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.v("StegoCrypto", "Response from server: " + response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.v("StegoCrypto", "POST data failed: " + error.getMessage());
-            }
-        }){
-            @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("data", Uri.encode(data));
-                params.put("toUserName", Uri.encode(toUsername.getText().toString()));
-
-                SharedPreferences userLocalDatabase = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME, Context.MODE_PRIVATE);
-                String from_username = userLocalDatabase.getString("userName", "");
-
-                params.put("fromUserName", Uri.encode(from_username));
-                return params;
-            }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("Content-Type","application/x-www-form-urlencoded");
-                return params;
-            }
-        };
-
-        queue.add(sr);
-    }
-
 
     private class StegoCryptoEncrypt extends AsyncTask<byte[], Integer, byte[]> {
 

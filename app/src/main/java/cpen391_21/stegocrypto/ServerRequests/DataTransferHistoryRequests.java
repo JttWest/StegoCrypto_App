@@ -23,6 +23,7 @@ import cpen391_21.stegocrypto.DataTransferHistory.DataTransferHistoryItem;
 import cpen391_21.stegocrypto.User.User;
 import cpen391_21.stegocrypto.User.UserLocalStore;
 
+// Class for retrieving data transfer history
 public class DataTransferHistoryRequests {
     ProgressDialog progressDialog;
     Context context;
@@ -42,6 +43,7 @@ public class DataTransferHistoryRequests {
         new RetrieveHistoryAsyncTask(historyArrayList, arrayAdapter, currLoginUsername).execute(requestURL);
     }
 
+    // Retrieve data transfer history for a user
     public class RetrieveHistoryAsyncTask extends AsyncTask<String, Void, Void> {
         String currLoginUsername;
 

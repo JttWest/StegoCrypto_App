@@ -17,11 +17,13 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-
+// Class for basic HTTP requests
 public class HTTPCommands {
+    // Our API server URL
     public static final String SERVER_URL = "https://stegocrypto-server.herokuapp.com/";
 
 
+    // Sends a GET request to requestURL
     static  public String performGetCall(String requestURL) {
         URL url;
         String response = "";
@@ -53,6 +55,7 @@ public class HTTPCommands {
     }
 
 
+    // sends a POST request to requestURL with postDataParams as its key-value body
     static public String performPostCall(String requestURL, HashMap<String, String> postDataParams) {
         URL url;
         String response = "";
@@ -93,6 +96,7 @@ public class HTTPCommands {
         return response;
     }
 
+    // Parse params and generate a URI string that can be tag onto a URL
     private static String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;

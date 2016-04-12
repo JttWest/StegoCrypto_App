@@ -71,38 +71,8 @@ public class HistoryActivity extends AppCompatActivity {
 
                 adb.setView(imageDialogLayout);
                 adb.show();
-
-                /*
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(HistoryActivity.this);
-                LinearLayout imageDialogView = (LinearLayout) getLayoutInflater().inflate(R.layout.image_dialog, null);
-                ImageView dialogImage = (ImageView) imageDialogView.findViewById(R.id.dialogPopupImage);
-
-                dialogBuilder.setView(imageDialogView);
-
-
-                DataTransferRequests dataTransferRequests = new DataTransferRequests(getApplicationContext());
-                dataTransferRequests.retrieveDataAsyncTask(HTTPCommands.SERVER_URL + "retrieveDataFromPackage?packageID=" +
-                        packageID, dialogImage);
-
-                AlertDialog imageDialog = dialogBuilder.create();
-                imageDialog.show();*/
-                }
             }
-
-            );
-
-        /*
-        DataTransferHistoryItem item = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
-        DataTransferHistoryItem item1 = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
-        DataTransferHistoryItem item2 = new DataTransferHistoryItem("To:", "derk", "today...", "f23rdwe");
-
-        historyArrayList.add(item);
-        historyArrayList.add(item1);
-        historyArrayList.add(item2);
-        */
-
-
-            //arrayAdapter.notifyDataSetChanged();
+        });
 
             // get ID of current user
             SharedPreferences userSP = getSharedPreferences(UserLocalStore.USER_LOCAL_STORE_SP_NAME,
